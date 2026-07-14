@@ -18,11 +18,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Copy backend codebase
-COPY . /app
+# Copy backend codebase to /app/backend to preserve the 'backend' package structure
+COPY . /app/backend
 
 # Expose FastAPI port
 EXPOSE 8000
 
-# Start server using uvicorn (bound to 0.0.0.0 for Cloud Run compatibility)
+# Start server using uvicorn
 CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
