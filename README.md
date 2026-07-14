@@ -32,7 +32,7 @@
 ---
 
 ## 🔗 Quick Navigation
-- [🌐 Live Demo](http://127.0.0.1:5173) &bull; ---
+- [🌐 Live Demo](https://stadiumos-frontend-bc9c.onrender.com) &bull; ---
 
 ## 📌 Table of Contents
 1. [⚠️ Problem Statement](#-problem-statement)
