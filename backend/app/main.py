@@ -503,5 +503,9 @@ def coordinate_multi_agent_swarm(payload: schemas.SwarmRequest):
             detail=f"Swarm orchestration routing failed: {str(e)}"
         )
 
-# Mount landing page static files at root
-app.mount("/", StaticFiles(directory="landing", html=True), name="landing")
+# Mount landing page static files at root if the folder exists
+landing_dir = "landing"
+if os.path.exists(landing_dir) and os.path.isdir(landing_dir):
+    app.mount("/", StaticFiles(directory=landing_dir, html=True), name="landing")
+else:
+    logger.warning("Landing directory not found. Skipping static file mounting at root.")
