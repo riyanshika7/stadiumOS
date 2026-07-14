@@ -151,26 +151,38 @@ graph TD
 
 ## 📸 Screenshots
 
-<details>
-  <summary>🔍 Expand to View Dashboard Previews</summary>
+<details open>
+  <summary>🔍 View Live Deployed Dashboard Previews</summary>
   
-  ### 🖥️ 1. Modern Glassmorphic Dashboard UI
-  *Premium dark theme featuring real-time command center alerts, maps, and translation modules.*
-  ```
-  [------------------- Dashboard Mockup Placeholder -------------------]
-  ```
+  ### 🖥️ 1. Ambient Insights & Command Center Live Broadcasts
+  *Monitors real-time capacities and alerts volunteers instantly of crowd surges and bottlenecks.*
+  <p align="center">
+    <img src="screenshots/ambient_insights.png" alt="Ambient Insights Dashboard" width="100%">
+  </p>
 
-  ### 🎟️ 2. Multimodal Ticket Scanner
-  *OCR scan processing an uploaded ticket, mapping Section 108 Row 12 Seat 5.*
-  ```
-  [------------------- Ticket Scanner Mockup Placeholder -------------------]
-  ```
+  ### 🎟️ 2. Multimodal Ticket & Credential Scanner
+  *Parses digital or physical ticket images, verifying gate access and extracting section and seat assignments.*
+  <p align="center">
+    <img src="screenshots/ticket_scanner.png" alt="Ticket Scanner in Action" width="100%">
+  </p>
 
-  ### ♿ 3. Glare-Free High-Contrast Mode
-  *Direct sunlight readability filter active for outdoor field volunteers.*
-  ```
-  [------------------- High Contrast UI Mockup Placeholder -------------------]
-  ```
+  ### 🌍 3. Multilingual Co-Pilot & Accessibility Route Planner
+  *Handles live fan query translation with sentiment analysis and plots step-free, wheelchair-friendly paths.*
+  <p align="center">
+    <img src="screenshots/multilingual_copilot.png" alt="Multilingual translation and path-planning" width="100%">
+  </p>
+
+  ### 🤖 4. Hierarchical Multi-Agent Swarm Orchestrator
+  *Coordinated multi-agent swarms resolving complex, multi-dimensional security and safety alerts.*
+  <p align="center">
+    <img src="screenshots/swarm_orchestrator.png" alt="Swarm Orchestrator Console" width="100%">
+  </p>
+
+  ### 📹 5. CCTV Predictive Visual Triage & Incident Reporting
+  *Live feed monitoring with automated anomaly alerts and dynamic log reports.*
+  <p align="center">
+    <img src="screenshots/cctv_and_incidents.png" alt="CCTV Triage & Incident Logs" width="100%">
+  </p>
 </details>
 
 ---
