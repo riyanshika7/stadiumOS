@@ -32,9 +32,7 @@
 ---
 
 ## 🔗 Quick Navigation
-- [🌐 Live Demo](http://127.0.0.1:5173) &bull; [📹 Demo Video](#) &bull; [📄 Presentation](#) &bull; [📚 Documentation](file:///c:/Users/riyan/webdev/PROMPTWARS_4/README.md)
-
----
+- [🌐 Live Demo](http://127.0.0.1:5173) &bull; ---
 
 ## 📌 Table of Contents
 1. [⚠️ Problem Statement](#-problem-statement)
