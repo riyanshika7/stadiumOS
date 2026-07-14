@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StadiumOS — AI Operating System for World-Class Stadiums</title>
+  <meta name="description" content="StadiumOS is the AI-powered digital twin platform transforming FIFA World Cup 2026 stadium operations with Multi-Agent Intelligence, real-time crowd safety, and Generative AI." />
+  <link rel="icon" href="stadiumos.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #050816;
+  --navy2:   #080d1f;
+  --blue:    #0070f3;
+  --cyan:    #00C8FF;
+  --cyan2:   #46F3FF;
+  --purple:  #7C5CFF;
+  --purple2: #a78bfa;
+  --white:   #f0f6ff;
+  --muted:   #8899aa;
+  --glass:   rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --glow-blue:   rgba(0,200,255,0.25);
+  --glow-purple: rgba(124,92,255,0.20);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ════════════════════════════════════════════════════════════
+   AURORA BACKGROUND
+═══════════════════════════════════════════════════════════════ */
+.aurora {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.18;
+  animation: auroraFloat 20s ease-in-out infinite alternate;
+}
+.aurora-blob:nth-child(1) {
+  width: 600px; height: 600px;
+  background: var(--cyan);
+  top: -200px; left: -200px;
+  animation-delay: 0s;
+}
+.aurora-blob:nth-child(2) {
+  width: 500px; height: 500px;
+  background: var(--purple);
+  top: 20%; right: -150px;
+  animation-delay: -5s;
+}
+.aurora-blob:nth-child(3) {
+  width: 400px; height: 400px;
+  background: var(--blue);
+  bottom: 10%; left: 30%;
+  animation-delay: -10s;
+}
+
+@keyframes auroraFloat {
+  0%   { transform: translate(0,0) scale(1); }
+  33%  { transform: translate(60px,-40px) scale(1.1); }
+  66%  { transform: translate(-30px,50px) scale(0.95); }
+  100% { transform: translate(40px,20px) scale(1.05); }
+}
+
+/* ════════════════════════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 3rem;
+  background: rgba(5,8,22,0.0);
+  backdrop-filter: blur(0px);
+  border-bottom: 1px solid transparent;
+  transition: all 0.5s ease;
+}
+nav.scrolled {
+  background: rgba(5,8,22,0.85);
+  backdrop-filter: blur(24px);
+  border-bottom-color: var(--glass-border);
+  box-shadow: 0 4px 40px rgba(0,0,0,0.4);
+}
+.nav-logo {
+  height: 44px; width: auto;
+  filter: drop-shadow(0 0 14px rgba(0,200,255,0.5));
+  transition: filter 0.3s;
+}
+.nav-logo:hover { filter: drop-shadow(0 0 22px rgba(70,243,255,0.8)); }
+
+.nav-links {
+  display: flex; align-items: center; gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  color: rgba(240,246,255,0.75);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--cyan); }
+
+.nav-cta {
+  padding: 0.55rem 1.4rem;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,112,243,0.4);
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+.nav-cta:hover {
+  box-shadow: 0 0 35px rgba(0,200,255,0.6);
+  transform: translateY(-1px);
+}
+
+/* ════════════════════════════════════════════════════════════
+   HERO SECTION
+═══════════════════════════════════════════════════════════════ */
+#hero {
+  position: relative;
+  width: 100%; height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+#hero-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+}
+
+/* Gradient vignette over canvas */
+.hero-vignette {
+  position: absolute; inset: 0; z-index: 2;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 50%, transparent 20%, rgba(5,8,22,0.3) 80%),
+    linear-gradient(to bottom, transparent 50%, rgba(5,8,22,0.95) 100%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative; z-index: 3;
+  text-align: center;
+  max-width: 900px;
+  padding: 0 2rem;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  background: rgba(0,200,255,0.08);
+  border: 1px solid rgba(0,200,255,0.25);
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--cyan);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  animation: fadeSlideDown 0.8s ease 0.2s both;
+}
+.hero-badge .dot {
+  width: 6px; height: 6px;
+  background: var(--cyan);
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--cyan);
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+.hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2.6rem, 6vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+  animation: fadeSlideDown 0.8s ease 0.4s both;
+}
+.hero-title .gradient-text {
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 40%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 640px;
+  margin: 0 auto 2.75rem;
+  animation: fadeSlideDown 0.8s ease 0.6s both;
+}
+
+.hero-ctas {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1rem; flex-wrap: wrap;
+  animation: fadeSlideDown 0.8s ease 0.8s both;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.9rem 2.2rem;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 0 30px rgba(0,200,255,0.35), 0 4px 20px rgba(0,112,243,0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 100%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0,200,255,0.6), 0 8px 30px rgba(0,112,243,0.5); }
+.btn-primary:hover::before { opacity: 1; }
+.btn-primary span { position: relative; z-index: 1; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.9rem 2.2rem;
+  background: rgba(255,255,255,0.04);
+  color: var(--white);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(0,200,255,0.4);
+  color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0,200,255,0.15);
+  transform: translateY(-2px);
+}
+
+/* Floating AI cards around hero */
+.float-cards {
+  position: absolute; inset: 0; z-index: 3;
+  pointer-events: none;
+}
+.float-card {
+  position: absolute;
+  background: rgba(8,13,31,0.75);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 0.85rem 1.1rem;
+  min-width: 160px;
+  animation: cardFloat 6s ease-in-out infinite;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.float-card .card-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+.float-card .card-value {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--white);
+}
+.float-card .card-status {
+  font-size: 0.7rem;
+  margin-top: 0.2rem;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+.dot-green  { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+.dot-yellow { background: #facc15; box-shadow: 0 0 6px #facc15; }
+.dot-red    { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+.dot-blue   { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+
+/* Card positions */
+.fc-1 { top: 18%; left: 4%;  animation-delay: 0s;    animation-duration: 7s; }
+.fc-2 { top: 35%; left: 2%;  animation-delay: -2s;   animation-duration: 8s; }
+.fc-3 { top: 55%; left: 5%;  animation-delay: -4s;   animation-duration: 6.5s; }
+.fc-4 { top: 18%; right: 4%; animation-delay: -1s;   animation-duration: 7.5s; }
+.fc-5 { top: 38%; right: 2%; animation-delay: -3s;   animation-duration: 8.5s; }
+.fc-6 { top: 60%; right: 4%; animation-delay: -5s;   animation-duration: 7s; }
+
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-12px) rotate(0.5deg); }
+  66%       { transform: translateY(6px) rotate(-0.3deg); }
+}
+
+/* Scroll indicator */
+.scroll-hint {
+  position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+  z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  color: var(--muted); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+  animation: fadeSlideDown 1s ease 1.2s both;
+  cursor: pointer;
+}
+.scroll-line {
+  width: 1px; height: 50px;
+  background: linear-gradient(to bottom, var(--cyan), transparent);
+  animation: scrollLine 2s ease-in-out infinite;
+}
+@keyframes scrollLine {
+  0%   { transform: scaleY(0); transform-origin: top; opacity: 1; }
+  50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+  100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   STATS BAR
+═══════════════════════════════════════════════════════════════ */
+.stats-bar {
+  position: relative; z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(8,13,31,0.6);
+  backdrop-filter: blur(20px);
+}
+.stat-item {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-right: 1px solid var(--glass-border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.stat-label {
+  font-size: 0.8rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-top: 0.25rem;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION COMMON
+═══════════════════════════════════════════════════════════════ */
+section { position: relative; z-index: 5; }
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6rem 2rem;
+}
+
+.section-eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.section-eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px; height: 2px;
+  background: var(--cyan);
+  border-radius: 2px;
+}
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+
+.section-sub {
+  font-size: 1.05rem;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 560px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+/* ════════════════════════════════════════════════════════════
+   FEATURES GRID
+═══════════════════════════════════════════════════════════════ */
+#features {
+  background: linear-gradient(180deg, rgba(5,8,22,0) 0%, rgba(8,13,31,0.5) 100%);
+}
+
+.features-header { text-align: center; margin-bottom: 4rem; }
+.features-header .section-eyebrow { justify-content: center; }
+.features-header .section-eyebrow::before { display: none; }
+.features-header .section-sub { margin: 0 auto; }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  cursor: default;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.feature-card:hover {
+  border-color: rgba(0,200,255,0.25);
+  background: rgba(0,200,255,0.04);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(0,200,255,0.08);
+}
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+.icon-blue   { background: rgba(0,112,243,0.15); border: 1px solid rgba(0,112,243,0.25); box-shadow: 0 0 20px rgba(0,112,243,0.1); }
+.icon-cyan   { background: rgba(0,200,255,0.12); border: 1px solid rgba(0,200,255,0.22); box-shadow: 0 0 20px rgba(0,200,255,0.1); }
+.icon-purple { background: rgba(124,92,255,0.15); border: 1px solid rgba(124,92,255,0.25); box-shadow: 0 0 20px rgba(124,92,255,0.1); }
+.icon-green  { background: rgba(34,197,94,0.12);  border: 1px solid rgba(34,197,94,0.22);  box-shadow: 0 0 20px rgba(34,197,94,0.1); }
+
+.feature-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem; font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+.feature-desc {
+  font-size: 0.88rem; color: var(--muted);
+  line-height: 1.7;
+}
+.feature-tag {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 100px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tag-blue   { background: rgba(0,112,243,0.15);  color: #60a5fa; border: 1px solid rgba(0,112,243,0.2); }
+.tag-cyan   { background: rgba(0,200,255,0.12);  color: var(--cyan); border: 1px solid rgba(0,200,255,0.2); }
+.tag-purple { background: rgba(124,92,255,0.15); color: var(--purple2); border: 1px solid rgba(124,92,255,0.2); }
+.tag-green  { background: rgba(34,197,94,0.12);  color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+
+/* ════════════════════════════════════════════════════════════
+   ARCHITECTURE / AGENTS SECTION
+═══════════════════════════════════════════════════════════════ */
+#architecture {
+  background: rgba(8,13,31,0.4);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.arch-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+.agent-ring {
+  position: relative;
+  width: 400px; height: 400px;
+  margin: 0 auto;
+}
+
+.ring-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 110px; height: 110px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  font-size: 0.65rem; font-weight: 800;
+  text-align: center; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 0 60px rgba(0,112,243,0.5), 0 0 120px rgba(124,92,255,0.2);
+  z-index: 2;
+  animation: centerPulse 4s ease-in-out infinite;
+}
+.ring-center .center-icon { font-size: 1.8rem; margin-bottom: 0.25rem; }
+@keyframes centerPulse {
+  0%, 100% { box-shadow: 0 0 60px rgba(0,112,243,0.5), 0 0 120px rgba(124,92,255,0.2); }
+  50% { box-shadow: 0 0 90px rgba(0,200,255,0.7), 0 0 160px rgba(124,92,255,0.35); }
+}
+
+/* SVG orbit ring */
+.orbit-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  animation: orbitSpin 30s linear infinite;
+}
+@keyframes orbitSpin { to { transform: rotate(360deg); } }
+
+.agent-node {
+  position: absolute;
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: 0.55rem; font-weight: 700;
+  text-align: center; letter-spacing: 0.04em;
+  text-transform: uppercase;
+  gap: 0.15rem;
+  animation: nodeFloat 5s ease-in-out infinite;
+  transition: all 0.3s;
+  cursor: default;
+}
+.agent-node:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0,200,255,0.3);
+  transform: scale(1.12) !important;
+  z-index: 10;
+}
+.agent-node .node-icon { font-size: 1.3rem; }
+
+/* Position agents around ring (200px radius) */
+.node-1 { top: calc(50% - 200px - 36px); left: calc(50% - 36px); animation-delay: 0s; }
+.node-2 { top: calc(50% - 100px - 36px); right: calc(50% - 200px - 36px); animation-delay: -.8s; }
+.node-3 { bottom: calc(50% - 200px - 36px); left: calc(50% - 36px); animation-delay: -1.6s; }
+.node-4 { top: calc(50% - 100px - 36px); left: calc(50% - 200px - 36px); animation-delay: -2.4s; }
+.node-5 { top: calc(50% - 36px); right: calc(50% - 230px - 36px); animation-delay: -0.4s; }
+.node-6 { top: calc(50% - 36px); left: calc(50% - 230px - 36px); animation-delay: -1.2s; }
+
+@keyframes nodeFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.04); }
+}
+
+.arch-content { padding: 1rem 0; }
+.agent-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.agent-item {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  transition: all 0.3s ease;
+}
+.agent-item:hover {
+  border-color: rgba(0,200,255,0.3);
+  background: rgba(0,200,255,0.04);
+  transform: translateX(4px);
+}
+.agent-item-icon { font-size: 1.4rem; margin-top: 0.1rem; flex-shrink: 0; }
+.agent-item-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.25rem; }
+.agent-item-desc  { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+/* ════════════════════════════════════════════════════════════
+   STORY / HOW IT WORKS
+═══════════════════════════════════════════════════════════════ */
+#story .section-inner { padding-bottom: 2rem; }
+
+.story-steps {
+  display: flex; flex-direction: column; gap: 0;
+  margin-top: 4rem;
+  position: relative;
+}
+.story-steps::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--cyan), var(--purple), transparent);
+  transform: translateX(-50%);
+}
+
+.story-step {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  align-items: center;
+  gap: 0;
+  padding: 2rem 0;
+}
+.story-step:nth-child(even) .step-content { grid-column: 3; }
+.story-step:nth-child(even) .step-empty  { grid-column: 1; grid-row: 1; }
+.story-step:nth-child(even) .step-dot    { grid-column: 2; grid-row: 1; }
+
+.step-dot {
+  grid-column: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  border-radius: 50%;
+  font-size: 1.2rem;
+  box-shadow: 0 0 30px rgba(0,200,255,0.4);
+  margin: 0 auto;
+  position: relative; z-index: 2;
+  flex-shrink: 0;
+}
+
+.step-content {
+  grid-column: 1;
+  padding: 1.5rem 2rem;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  transition: all 0.3s ease;
+}
+.step-content:hover {
+  border-color: rgba(0,200,255,0.25);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+}
+.step-number {
+  font-size: 0.7rem; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 0.5rem;
+}
+.step-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+.step-desc  { font-size: 0.875rem; color: var(--muted); line-height: 1.65; }
+.step-empty { grid-column: 3; }
+
+.story-step:nth-child(even) .step-content { grid-column: 3; grid-row: 1; }
+.story-step:nth-child(even) .step-empty   { grid-column: 1; grid-row: 1; }
+
+/* ════════════════════════════════════════════════════════════
+   TECH STACK
+═══════════════════════════════════════════════════════════════ */
+#technology { border-top: 1px solid var(--glass-border); }
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.tech-item {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.tech-item:hover {
+  border-color: rgba(0,200,255,0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.tech-item .tech-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.tech-item .tech-name { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+
+/* ════════════════════════════════════════════════════════════
+   CTA SECTION
+═══════════════════════════════════════════════════════════════ */
+#cta {
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,112,243,0.15) 0%, rgba(124,92,255,0.08) 50%, transparent 100%);
+  border-top: 1px solid var(--glass-border);
+}
+.cta-inner {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 8rem 2rem;
+}
+.cta-glow {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(0,200,255,0.12), transparent 70%);
+  border-radius: 50%;
+  margin: 0 auto 3rem;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.cta-glow::before {
+  content: '';
+  position: absolute; inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,92,255,0.08), transparent 70%);
+  animation: ctaGlowPulse 4s ease-in-out infinite;
+}
+@keyframes ctaGlowPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+.cta-logo { height: 130px; filter: drop-shadow(0 0 30px rgba(0,200,255,0.5)); }
+.cta-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+.cta-sub { font-size: 1.05rem; color: var(--muted); line-height: 1.7; margin-bottom: 2.5rem; }
+.cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+/* ════════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════════ */
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="stadiumos.png" alt="StadiumOS" class="nav-logo" />
+        <p>AI Operating System for World-Class Stadiums. Built for FIFA World Cup 2026.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#story">How It Works</a>
+          <a href="http://127.0.0.1:5173" target="_blank">Live Demo</a>
+        </div>
+        <div class="footer-col">
+          <h4>Technology</h4>
+          <a href="#">Gemini AI</a>
+          <a href="#">Multi-Agent</a>
+          <a href="#">Digital Twin</a>
+          <a href="#">API Docs</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">GitHub</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">Contact</a>
+          <a href="#">Privacy</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 StadiumOS. Built with ❤️ for FIFA World Cup 2026.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-link" title="GitHub">🐙</a>
+        <a href="#" class="social-link" title="LinkedIn">💼</a>
+        <a href="#" class="social-link" title="Twitter">🐦</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════ THREE.JS STADIUM ══════════════════ -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+const canvas  = document.getElementById('hero-canvas');
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(W(), H());
+renderer.setClearColor(0x050816, 1);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050816, 0.0045);
+
+const camera = new THREE.PerspectiveCamera(50, W() / H(), 0.1, 3000);
+camera.position.set(0, 140, 240);
+camera.lookAt(0, 0, 0);
+
+// ── LIGHTING ──────────────────────────────────────────────
+const ambient = new THREE.AmbientLight(0x112244, 1.5);
+scene.add(ambient);
+
+[[-70,80,60,0x0088ff],[70,80,60,0x0088ff],[-70,80,-60,0x2244ff],[70,80,-60,0x2244ff]].forEach(([x,y,z,c])=>{
+  const pt = new THREE.PointLight(c, 4, 200);
+  pt.position.set(x,y,z);
+  scene.add(pt);
+});
+
+const hemi = new THREE.HemisphereLight(0x0033aa, 0x001122, 1);
+scene.add(hemi);
+
+// ── FOOTBALL FIELD ────────────────────────────────────────
+const fieldGeo  = new THREE.PlaneGeometry(100, 70);
+const fieldMat  = new THREE.MeshLambertMaterial({ color: 0x1a4a0f });
+const field     = new THREE.Mesh(fieldGeo, fieldMat);
+field.rotation.x = -Math.PI / 2;
+field.position.y = -10;
+scene.add(field);
+
+// Field line strips (alternating dark/lighter green)
+for (let i = 0; i < 10; i++) {
+  const sg = new THREE.PlaneGeometry(10, 70);
+  const sm = new THREE.MeshLambertMaterial({ color: i % 2 === 0 ? 0x1e5510 : 0x174008 });
+  const s  = new THREE.Mesh(sg, sm);
+  s.rotation.x = -Math.PI / 2;
+  s.position.set(-45 + i * 10, -9.9, 0);
+  scene.add(s);
+}
+
+// Centre circle
+const circleGeo = new THREE.RingGeometry(9, 9.5, 64);
+const circleM   = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+const circle    = new THREE.Mesh(circleGeo, circleM);
+circle.rotation.x = -Math.PI / 2;
+circle.position.y = -9.8;
+scene.add(circle);
+
+// ── STADIUM STRUCTURE ─────────────────────────────────────
+const stadiumGeo = new THREE.TorusGeometry(72, 18, 24, 128);
+const stadiumMat = new THREE.MeshStandardMaterial({
+  color: 0x080d1a, emissive: 0x001133,
+  emissiveIntensity: 0.6, roughness: 0.7, metalness: 0.5
+});
+const stadiumRing = new THREE.Mesh(stadiumGeo, stadiumMat);
+stadiumRing.rotation.x = Math.PI / 2;
+stadiumRing.position.y = 6;
+scene.add(stadiumRing);
+
+// Glowing rim lights
+[13, 1, -9].forEach((y, i) => {
+  const rimGeo = new THREE.TorusGeometry(71, 0.6, 8, 128);
+  const rimMat = new THREE.MeshBasicMaterial({ color: [0x0077ff, 0x0044aa, 0x002255][i] });
+  const rim    = new THREE.Mesh(rimGeo, rimMat);
+  rim.rotation.x = Math.PI / 2;
+  rim.position.y = y;
+  scene.add(rim);
+});
+
+// ── CROWD PARTICLES ───────────────────────────────────────
+const CROWD = 7000;
+const cPos  = new Float32Array(CROWD * 3);
+const cCol  = new Float32Array(CROWD * 3);
+
+for (let i = 0; i < CROWD; i++) {
+  const a = Math.random() * Math.PI * 2;
+  const t = Math.random();           // 0 = inner, 1 = outer
+  const r = 54 + t * 17;
+  const h = t * 20 - 10;
+  cPos[i*3]   = Math.cos(a) * r;
+  cPos[i*3+1] = h;
+  cPos[i*3+2] = Math.sin(a) * r;
+  const team  = Math.random();
+  if (team < 0.45) { cCol[i*3]=0.15; cCol[i*3+1]=0.55; cCol[i*3+2]=1.0; }
+  else if (team < 0.8) { cCol[i*3]=0.95; cCol[i*3+1]=0.95; cCol[i*3+2]=0.95; }
+  else { cCol[i*3]=1.0; cCol[i*3+1]=0.85; cCol[i*3+2]=0.1; }
+}
+
+const crowdGeo = new THREE.BufferGeometry();
+crowdGeo.setAttribute('position', new THREE.BufferAttribute(cPos, 3));
+crowdGeo.setAttribute('color',    new THREE.BufferAttribute(cCol, 3));
+const crowdMat = new THREE.PointsMaterial({ size: 0.85, vertexColors: true, sizeAttenuation: true });
+scene.add(new THREE.Points(crowdGeo, crowdMat));
+
+// ── FLOODLIGHT TOWERS ─────────────────────────────────────
+[[-72,0,52],[72,0,52],[-72,0,-52],[72,0,-52]].forEach(([x,,z]) => {
+  const pole = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.8, 1.2, 50, 8),
+    new THREE.MeshStandardMaterial({ color: 0x334466 })
+  );
+  pole.position.set(x, 15, z);
+  scene.add(pole);
+
+  const head = new THREE.Mesh(
+    new THREE.BoxGeometry(6, 2, 4),
+    new THREE.MeshBasicMaterial({ color: 0xffffee })
+  );
+  head.position.set(x, 40, z);
+  scene.add(head);
+
+  // Light beam (volumetric cone suggestion)
+  const beamGeo = new THREE.ConeGeometry(18, 45, 8, 1, true);
+  const beamMat = new THREE.MeshBasicMaterial({ color: 0x88aaff, transparent: true, opacity: 0.04, side: THREE.BackSide });
+  const beam    = new THREE.Mesh(beamGeo, beamMat);
+  beam.position.set(x, 18, z);
+  beam.rotation.z = x < 0 ? 0.3 : -0.3;
+  beam.rotation.x = z < 0 ? 0.2 : -0.2;
+  scene.add(beam);
+});
+
+// ── AI NETWORK NODES ──────────────────────────────────────
+const nodeData = [
+  [0,   55,  0,  0x00C8FF, 'AI HQ'],
+  [60,  40,  0,  0x7C5CFF, 'Gate A'],
+  [-60, 40,  0,  0x7C5CFF, 'Gate B'],
+  [0,   40,  60, 0x7C5CFF, 'Gate C'],
+  [0,   40, -60, 0x7C5CFF, 'Gate D'],
+  [40,  50,  40, 0x00ff88, 'Medical'],
+  [-40, 50, -40, 0xff4444, 'Security'],
+  [70,  45, -20, 0xffaa00, 'Parking'],
+];
+
+const nodeMeshes = [];
+nodeData.forEach(([x,y,z,color]) => {
+  const nm = new THREE.Mesh(
+    new THREE.SphereGeometry(2, 16, 16),
+    new THREE.MeshBasicMaterial({ color })
+  );
+  nm.position.set(x,y,z);
+  scene.add(nm);
+  nodeMeshes.push(nm);
+
+  // Connect to centre
+  if (x !== 0 || z !== 0) {
+    const pts = [new THREE.Vector3(0,55,0), new THREE.Vector3(x,y,z)];
+    const lg  = new THREE.BufferGeometry().setFromPoints(pts);
+    const lm  = new THREE.LineBasicMaterial({ color: 0x0055aa, transparent: true, opacity: 0.25 });
+    scene.add(new THREE.Line(lg, lm));
+  }
+});
+
+// ── DRONES ────────────────────────────────────────────────
+const DRONES = 35;
+const dPos   = new Float32Array(DRONES * 3);
+const dAngs  = Array.from({length:DRONES}, (_,i) => i * (Math.PI*2/DRONES));
+const dRads  = Array.from({length:DRONES}, () => 25 + Math.random()*45);
+const dSpds  = Array.from({length:DRONES}, () => 0.003 + Math.random()*0.006);
+const dH     = Array.from({length:DRONES}, () => 30 + Math.random()*30);
+
+const droneGeo = new THREE.BufferGeometry();
+droneGeo.setAttribute('position', new THREE.BufferAttribute(dPos, 3));
+const droneMat = new THREE.PointsMaterial({ size: 2.5, color: 0x46F3FF, transparent: true, opacity: 0.85, sizeAttenuation: true });
+scene.add(new THREE.Points(droneGeo, droneMat));
+
+// ── STARFIELD ─────────────────────────────────────────────
+const STARS = 4000;
+const sPos  = new Float32Array(STARS * 3);
+for (let i = 0; i < STARS; i++) {
+  const r = 600 + Math.random() * 1000;
+  const t = Math.random() * Math.PI * 2;
+  const p = (Math.random() - 0.5) * Math.PI;
+  sPos[i*3]   = r * Math.cos(p) * Math.cos(t);
+  sPos[i*3+1] = r * Math.sin(p);
+  sPos[i*3+2] = r * Math.cos(p) * Math.sin(t);
+}
+const sGeo = new THREE.BufferGeometry();
+sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+const sMat = new THREE.PointsMaterial({ size: 0.8, color: 0xaaddff, transparent: true, opacity: 0.5 });
+scene.add(new THREE.Points(sGeo, sMat));
+
+// ── ANIMATION ─────────────────────────────────────────────
+let cameraAngle = 0;
+const clock     = new THREE.Clock();
+let mouseX = 0, mouseY = 0;
+
+window.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+(function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  // Camera slow orbit + mouse parallax
+  cameraAngle += 0.0006;
+  const cr = 240;
+  camera.position.x = Math.cos(cameraAngle) * cr + mouseX * 12;
+  camera.position.z = Math.sin(cameraAngle) * cr + mouseY * 8;
+  camera.position.y = 140 + Math.sin(t * 0.08) * 8;
+  camera.lookAt(0, 0, 0);
+
+  // Drones orbit
+  for (let i = 0; i < DRONES; i++) {
+    dAngs[i] += dSpds[i];
+    dPos[i*3]   = Math.cos(dAngs[i]) * dRads[i];
+    dPos[i*3+2] = Math.sin(dAngs[i]) * dRads[i];
+    dPos[i*3+1] = dH[i] + Math.sin(t * 1.2 + i) * 4;
+  }
+  droneGeo.attributes.position.needsUpdate = true;
+
+  // Node pulsing + ring rotation
+  nodeMeshes.forEach((n, i) => {
+    n.scale.setScalar(1 + Math.sin(t * 1.8 + i * 0.8) * 0.35);
+  });
+
+  // Stadium rim shimmer
+  stadiumRing.material.emissiveIntensity = 0.5 + Math.sin(t * 0.6) * 0.15;
+
+  renderer.render(scene, camera);
+})();
+
+window.addEventListener('resize', () => {
+  camera.aspect = W() / H();
+  camera.updateProjectionMatrix();
+  renderer.setSize(W(), H());
+});
+</script>
+
+<!-- ══════════════════ GSAP SCROLL ANIMATIONS ══════════════════ -->
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// Navbar on scroll
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// Reveal elements on scroll
+gsap.utils.toArray('.reveal').forEach(el => {
+  gsap.fromTo(el,
+    { opacity: 0, y: 50 },
+    {
+      opacity: 1, y: 0,
+      duration: 0.9,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 88%',
+        toggleActions: 'play none none none'
+      }
+    }
+  );
+});
+
+// Staggered feature cards
+gsap.utils.toArray('.feature-card').forEach((card, i) => {
+  gsap.fromTo(card,
+    { opacity: 0, y: 60, scale: 0.95 },
+    {
+      opacity: 1, y: 0, scale: 1,
+      duration: 0.7,
+      ease: 'power3.out',
+      delay: (i % 4) * 0.1,
+      scrollTrigger: { trigger: card, start: 'top 90%', toggleActions: 'play none none none' }
+    }
+  );
+});
+
+// Tech items stagger
+gsap.utils.toArray('.tech-item').forEach((item, i) => {
+  gsap.fromTo(item,
+    { opacity: 0, scale: 0.8 },
+    {
+      opacity: 1, scale: 1,
+      duration: 0.5,
+      ease: 'back.out(1.5)',
+      delay: i * 0.05,
+      scrollTrigger: { trigger: item, start: 'top 92%', toggleActions: 'play none none none' }
+    }
+  );
+});
+
+// Counter animation
+function animateCount(el, target, suffix='') {
+  const isLarge = target > 999;
+  gsap.fromTo({val: 0}, {val: target}, {
+    duration: 2.2,
+    ease: 'power2.out',
+    onUpdate: function() {
+      const v = Math.round(this.targets()[0].val);
+      el.textContent = isLarge
+        ? (v >= 1000 ? (v/1000).toFixed(0)+'K+' : v)
+        : v + suffix;
+    },
+    scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+  });
+}
+
+document.querySelectorAll('[data-target]').forEach(el => {
+  const t   = parseInt(el.dataset.target);
+  const sfx = el.parentElement.querySelector('.stat-label').textContent.includes('Uptime') ? '%' : '';
+  animateCount(el, t, sfx);
+});
+
+// Smooth horizontal scroll hint
+document.querySelector('.scroll-hint')?.addEventListener('click', () => {
+  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+});
+</script>
+
+</body>
+</html>

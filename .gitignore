@@ -1,0 +1,45 @@
+# Credentials & Environments
+backend/.env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+backend/copapilot.db
+backend/copapilot_temp.db
+
+# Python cache & tests
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+nosetests.xml
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Node / JS dependencies and build outputs
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+build/
+frontend/build/
+.npm
+.eslintcache
+
+# Logs & OS metadata
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
