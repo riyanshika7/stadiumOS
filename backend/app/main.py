@@ -509,3 +509,10 @@ if os.path.exists(landing_dir) and os.path.isdir(landing_dir):
     app.mount("/", StaticFiles(directory=landing_dir, html=True), name="landing")
 else:
     logger.warning("Landing directory not found. Skipping static file mounting at root.")
+    @app.get("/")
+    def read_root():
+        return {
+            "status": "healthy",
+            "service": "StadiumOS Backend API",
+            "version": "2.0.0"
+        }
