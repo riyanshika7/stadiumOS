@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
-import DigitalTwinStadium from './DigitalTwinStadium';
 import '../landing.css';
+
+const DigitalTwinStadium = React.lazy(() => import('./DigitalTwinStadium'));
 
 // --- Animated Ripple Button Effect ---
 export function handleButtonRipple(e) {
@@ -201,9 +202,11 @@ export default function LandingPage({ onEnterConsole }) {
     <div className="landing-body animated-gradient-bg min-h-screen relative w-full select-none">
       
       {/* --- Full Screen 3D Digital Twin Background --- */}
-      <DigitalTwinStadium 
-        scrollProgress={activeScenario === 'congestion' ? 0.45 : activeScenario === 'emergency' ? 0.85 : scrollProgress} 
-      />
+      <React.Suspense fallback={<div className="landing-vignette-overlay" style={{ background: '#02040a' }} />}>
+        <DigitalTwinStadium 
+          scrollProgress={activeScenario === 'congestion' ? 0.45 : activeScenario === 'emergency' ? 0.85 : scrollProgress} 
+        />
+      </React.Suspense>
 
       {/* Radial vignette mask for blending 3D scene with HTML overlay */}
       <div className="landing-vignette-overlay" />

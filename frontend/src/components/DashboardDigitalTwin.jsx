@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import DigitalTwinStadium from './DigitalTwinStadium';
 import { Shield, Flame, Activity, Zap, Compass } from 'lucide-react';
+
+const DigitalTwinStadium = React.lazy(() => import('./DigitalTwinStadium'));
 
 const ZONE_DETAILS = {
   "Gate A": { density: "45%", status: "Normal Ingress", guards: 12, incidentCount: 0, flowRate: "1.4 fans/sec" },
@@ -33,12 +34,14 @@ export default function DashboardDigitalTwin({ activeNode, onNodeSelect, onTrigg
 
       {/* 3D Canvas Area */}
       <div style={{ flex: 1, position: 'relative', background: '#02040a' }}>
-        <DigitalTwinStadium 
-          scrollProgress={0} 
-          activeNode={activeNode} 
-          onNodeClick={onNodeSelect}
-          isContained={true}
-        />
+        <React.Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontSize: '0.85rem' }}>Initializing 3D Digital Twin...</div>}>
+          <DigitalTwinStadium 
+            scrollProgress={0} 
+            activeNode={activeNode} 
+            onNodeClick={onNodeSelect}
+            isContained={true}
+          />
+        </React.Suspense>
 
         {/* Floating Instructions Banner */}
         {!activeNode && (

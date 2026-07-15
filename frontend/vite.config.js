@@ -19,32 +19,6 @@ export default defineConfig({
     // suppress the expected Three.js size warning in CI logs.
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      output: {
-        /**
-         * Manual chunk splitting strategy
-         * ─────────────────────────────────────────────────────────────────
-         * Using a function (not an object) avoids the circular-dependency
-         * warning that arises when Rollup resolves shared peer deps across
-         * statically-declared entry arrays.
-         *
-         * Chunk map:
-         *  vendor-three  │ Three.js + R3F  (lazy-loaded via React.lazy)
-         *  vendor-ui     │ Framer Motion + Lucide icons
-         *  vendor-misc   │ everything else in node_modules
-         */
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined;
-
-          if (id.includes('/three/') || id.includes('@react-three/')) {
-            return 'vendor-three';
-          }
-          if (id.includes('/framer-motion/') || id.includes('/lucide-react/')) {
-            return 'vendor-ui';
-          }
-          // react / react-dom / scheduler / all other deps → vendor-misc
-          return 'vendor-misc';
-        },
-      },
     },
   },
 
