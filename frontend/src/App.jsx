@@ -3,7 +3,8 @@ import {
   Clock,
   UserCheck,
   Sun,
-  WifiOff
+  WifiOff,
+  Eye
 } from 'lucide-react';
 
 import AlertFeed from './components/AlertFeed';
@@ -369,14 +370,11 @@ function App() {
 
   if (currentView === 'landing') {
     return (
-      <InclusiveModeProvider>
-        <LandingPage onEnterConsole={() => setCurrentView('dashboard')} />
-      </InclusiveModeProvider>
+      <LandingPage onEnterConsole={() => setCurrentView('dashboard')} />
     );
   }
 
   return (
-    <InclusiveModeProvider>
     <div className="app-container">
       {/* WCAG 2.4.1 — Skip to main content link for keyboard users */}
       <a href="#main-content" className="skip-link">Skip to main content</a>
@@ -414,7 +412,10 @@ function App() {
           <InclusiveModePanel />
 
           <button 
+            id="glare-mode-toggle"
             onClick={toggleGlareMode} 
+            aria-pressed={isGlareMode}
+            aria-label="Toggle Glare Mode for outdoor high contrast display"
             className="btn btn-secondary" 
             style={{ 
               padding: '0.4rem 0.8rem', 
@@ -629,7 +630,6 @@ function App() {
         onExecute={executeCommand}
       />
     </div>
-    </InclusiveModeProvider>
   );
 }
 

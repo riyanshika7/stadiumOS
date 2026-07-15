@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from typing import List
 import pypdf
 
-from backend.app.db import get_db, engine, Base, SessionLocal
+from backend.app.db import get_db, engine
 from backend.app.models import Incident, Alert, StadiumLocation
 from backend.app import schemas
 from backend.app.seeder import seed_database
@@ -387,7 +387,6 @@ async def upload_playbook_pdf(file: UploadFile = File(...)):
 @app.post("/api/playbook/query")
 def query_sop_playbook(payload: schemas.TranslateRequest, db: Session = Depends(get_db)):
     """Queries the uploaded PDF playbook text using Gemini RAG."""
-    global PLAYBOOK_TEXT_CACHE
     try:
         if USE_SIMULATOR:
             return mock_sop_response(payload.query)

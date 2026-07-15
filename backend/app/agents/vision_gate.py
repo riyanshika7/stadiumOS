@@ -1,12 +1,11 @@
 import json
 import logging
 import base64
-import struct
 import hashlib
 import os
 from google import genai
 from google.genai import types
-from backend.app.config import GEMINI_API_KEY, USE_SIMULATOR
+from backend.app.config import GEMINI_API_KEY
 
 logger = logging.getLogger(__name__)
 

@@ -1,10 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
+import { InclusiveModeProvider } from './hooks/useInclusiveMode'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <InclusiveModeProvider>
+      <App />
+    </InclusiveModeProvider>
   </React.StrictMode>,
 )
