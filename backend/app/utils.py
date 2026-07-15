@@ -1,20 +1,16 @@
-import logging
 
-logger = logging.getLogger(__name__)
-
-def binary_search_locations(locations: list, target_name: str):
+def binary_search_locations(locations: list, target_name: str, is_sorted: bool = False):
     """
     Performs a binary search on a list of location objects sorted by their name.
     Time Complexity: O(log n) compared to linear search O(n).
     
     :param locations: List of StadiumLocation database models or dictionary objects.
     :param target_name: The string name of the location we are searching for.
+    :param is_sorted: If True, assumes the input list is already sorted by name.
     :return: The location object if found, otherwise None.
     """
-    # Sort the list by name to satisfy binary search prerequisite.
-    # While sorting takes O(n log n), doing it once allows repeatedly querying 
-    # the list at O(log n) lookup speed.
-    sorted_locations = sorted(locations, key=lambda x: x.name.lower())
+    # Sort the list by name if not already pre-sorted.
+    sorted_locations = locations if is_sorted else sorted(locations, key=lambda x: x.name.lower())
     
     low = 0
     high = len(sorted_locations) - 1

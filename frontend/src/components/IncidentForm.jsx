@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+import { API_BASE_URL } from '../constants';
 
 function IncidentForm({ onIncidentSubmitted }) {
   const [incidentText, setIncidentText] = useState('');
@@ -61,16 +60,28 @@ function IncidentForm({ onIncidentSubmitted }) {
         Report a hazard, medical issue, or lost item. StadiumOS parses the text, extracts the location, sets the urgency, and updates command center logs.
       </p>
 
-      <div className="speech-helpers">
-        <span className="speech-tag" onClick={() => fillTemplate("Medical emergency: an elderly fan has fainted near Section 204 Row E due to heat.")}>
+      <div className="speech-helpers" role="group" aria-label="Quick-fill incident templates">
+        <button
+          type="button"
+          className="speech-tag"
+          onClick={() => fillTemplate('Medical emergency: an elderly fan has fainted near Section 204 Row E due to heat.')}
+        >
           📋 Medical Template
-        </span>
-        <span className="speech-tag" onClick={() => fillTemplate("Hazard: soft drink spilled at Concession Stand North, slippery floor.")}>
+        </button>
+        <button
+          type="button"
+          className="speech-tag"
+          onClick={() => fillTemplate('Hazard: soft drink spilled at Concession Stand North, slippery floor.')}
+        >
           📋 Spill Hazard Template
-        </span>
-        <span className="speech-tag" onClick={() => fillTemplate("Lost item: found a blue backpack containing passport near Restroom Block A.")}>
+        </button>
+        <button
+          type="button"
+          className="speech-tag"
+          onClick={() => fillTemplate('Lost item: found a blue backpack containing passport near Restroom Block A.')}
+        >
           📋 Lost Item Template
-        </span>
+        </button>
       </div>
 
       <form onSubmit={handleSubmit}>

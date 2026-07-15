@@ -10,8 +10,8 @@ backend/.env
 *.db
 *.sqlite
 *.sqlite3
-backend/copapilot.db
-backend/copapilot_temp.db
+backend/stadiumos.db
+backend/stadiumos_temp.db
 
 # Python cache & tests
 __pycache__/

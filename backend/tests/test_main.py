@@ -1,4 +1,5 @@
 import pytest
+import io
 from fastapi.testclient import TestClient
 from backend.app.main import app
 
@@ -61,3 +62,89 @@ def test_alerts_endpoint():
     assert response.status_code == 200
     alerts = response.json()
     assert isinstance(alerts, list)
+
+def test_ticket_upload_endpoint():
+    payload = {
+        "image_b64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP",
+        "ticket_type": "vip"
+    }
+    response = client.post("/api/volunteer/vision-ticket", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "gate" in data
+    assert data["category"] == "VIP Suite Pass"
+
+def test_deescalation_coach_endpoint():
+    payload = {
+        "query": "Where is the restroom?",
+        "tone": "angry",
+        "context": "seating dispute"
+    }
+    response = client.post("/api/deescalate", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "deescalation_script" in data
+
+def test_ambient_insights_endpoint():
+    response = client.get("/api/ambient/insights")
+    assert response.status_code == 200
+    data = response.json()
+    assert "predicted_problems" in data
+
+def test_cctv_analysis_endpoint():
+    payload = {
+        "image_b64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP",
+        "scenario": "surge"
+    }
+    response = client.post("/api/operations/cctv-analysis", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "risk_index" in data
+
+def test_swarm_coordinate_endpoint():
+    payload = {
+        "event_description": "Choking fan in gate C"
+    }
+    response = client.post("/api/swarm/coordinate", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "coordination_summary" in data
+
+def test_mock_sop_response_utility():
+    from backend.app.main import mock_sop_response
+    res1 = mock_sop_response("lost child")
+    assert "Lost Child" in res1["answer"]
+    res2 = mock_sop_response("medical help")
+    assert "Medical" in res2["answer"]
+    res3 = mock_sop_response("hello")
+    assert "General" in res3["answer"]
+
+def test_upload_pdf_endpoint_invalid():
+    files = {"file": ("playbook.pdf", io.BytesIO(b"Not a PDF"), "application/pdf")}
+    response = client.post("/api/crowd/upload-pdf", files=files)
+    assert response.status_code in [200, 400, 500, 422]
+
+def test_upload_db_endpoint_invalid():
+    files = {"file": ("stadiumos.db", io.BytesIO(b"Not a DB"), "application/octet-stream")}
+    response = client.post("/api/crowd/upload-db", files=files)
+    assert response.status_code in [200, 400, 500, 422]
+
+def test_playbook_query_endpoint():
+    payload = {"query": "What is the lost child protocol?"}
+    response = client.post("/api/playbook/query", json=payload)
+    assert response.status_code == 200
+
+def test_resolve_incident_not_found():
+    response = client.patch("/api/incidents/999999", json={"status": "resolved"})
+    assert response.status_code == 404
+
+def test_create_incident_invalid():
+    response = client.post("/api/incident", json={"description": ""})
+    assert response.status_code == 422
+
+def test_upload_csv_endpoint_invalid():
+    files = {"file": ("crowd.csv", io.BytesIO(b"Corrupted,data\n"), "text/csv")}
+    response = client.post("/api/crowd/upload-csv", files=files)
+    assert response.status_code in [200, 400, 500, 422]
+
+

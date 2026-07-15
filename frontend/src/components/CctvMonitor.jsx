@@ -1,29 +1,30 @@
 import React, { useState } from 'react';
 import { Camera, ShieldAlert } from 'lucide-react';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+import { API_BASE_URL, CCTV_MOCK_FRAME_B64 } from '../constants';
 
 function CctvMonitor() {
   const [activeScenario, setActiveScenario] = useState('normal');
   const [cctvResult, setCctvResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  const cctvMockFrameBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=";
+  const [analysisError, setAnalysisError] = useState(false);
 
   const runCctvAnalysis = async (scenario) => {
     setIsAnalyzing(true);
     setActiveScenario(scenario);
     setCctvResult(null);
+    setAnalysisError(false);
     try {
       const res = await fetch(`${API_BASE_URL}/api/operations/cctv-analysis`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image_b64: cctvMockFrameBase64, scenario }),
+        body: JSON.stringify({ image_b64: CCTV_MOCK_FRAME_B64, scenario }),
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setCctvResult(data);
     } catch (err) {
-      console.error("CCTV analysis error:", err);
+      console.error('CCTV analysis error:', err);
+      setAnalysisError(true);
     } finally {
       setIsAnalyzing(false);
     }
@@ -130,15 +131,8 @@ function CctvMonitor() {
               </p>
             )}
           </div>
-
-          <style>{`
-            @keyframes scanLine {
-              0%   { top: 0%; }
-              50%  { top: 100%; }
-              100% { top: 0%; }
-            }
-          `}</style>
         </div>
+        {/* scanLine animation is defined globally in index.css */}
 
         {/* ── Controls Panel ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'space-between' }}>
@@ -188,7 +182,12 @@ function CctvMonitor() {
 
       </div>{/* end cctv-grid */}
 
-      {/* ── Analysis Results ── */}
+      {/* ── Analysis Results or Error ── */}
+      {analysisError && (
+        <div style={{ marginTop: '1.5rem', padding: '0.75rem 1rem', background: 'rgba(239,68,68,0.08)', border: '1px solid var(--color-danger)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--color-danger)' }}>
+          ⚠️ CCTV analysis failed. Check backend connection and try again.
+        </div>
+      )}
       {cctvResult && (
         <div style={{
           marginTop: '1.5rem',

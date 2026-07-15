@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, CheckCircle2, AlertTriangle, Database, Send } from 'lucide-react';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+import { API_BASE_URL } from '../constants';
 
 function CsvUploader({ onUploadSuccess }) {
   // File states
@@ -102,30 +101,52 @@ function CsvUploader({ onUploadSuccess }) {
       </h3>
       
       {/* Tab Selector */}
-      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+      <div role="tablist" aria-label="Jury Testing Tools" style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
         <button 
+          role="tab"
+          id="tab-csv"
+          aria-selected={activeTab === 'csv'}
+          aria-controls="panel-csv"
           onClick={() => { setActiveTab('csv'); setStatusMsg(''); }}
           style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', background: activeTab === 'csv' ? 'var(--color-primary)' : 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 'bold' }}
         >
           CSV Density
         </button>
         <button 
+          role="tab"
+          id="tab-pdf"
+          aria-selected={activeTab === 'pdf'}
+          aria-controls="panel-pdf"
           onClick={() => { setActiveTab('pdf'); setStatusMsg(''); }}
           style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', background: activeTab === 'pdf' ? 'var(--color-primary)' : 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 'bold' }}
         >
           PDF Playbook
         </button>
         <button 
+          role="tab"
+          id="tab-db"
+          aria-selected={activeTab === 'db'}
+          aria-controls="panel-db"
           onClick={() => { setActiveTab('db'); setStatusMsg(''); }}
           style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', background: activeTab === 'db' ? 'var(--color-primary)' : 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 'bold' }}
         >
           SQL DB
         </button>
+        <button 
+          role="tab"
+          id="tab-chaos"
+          aria-selected={activeTab === 'chaos'}
+          aria-controls="panel-chaos"
+          onClick={() => { setActiveTab('chaos'); setStatusMsg(''); }}
+          style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', background: activeTab === 'chaos' ? 'var(--color-primary)' : 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          Chaos Sandbox
+        </button>
       </div>
 
       {/* CSV TAB */}
       {activeTab === 'csv' && (
-        <div>
+        <div id="panel-csv" role="tabpanel" aria-labelledby="tab-csv">
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem', lineHeight: '1.3' }}>
             Upload custom zone CSV files to trigger Explainable AI (XAI) redirect alerts.
           </p>
@@ -165,7 +186,7 @@ function CsvUploader({ onUploadSuccess }) {
 
       {/* PDF TAB */}
       {activeTab === 'pdf' && (
-        <div>
+        <div id="panel-pdf" role="tabpanel" aria-labelledby="tab-pdf">
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem', lineHeight: '1.3' }}>
             Upload an SOP/Playbook PDF to index guidelines, then query them via GenAI RAG.
           </p>
@@ -229,7 +250,7 @@ function CsvUploader({ onUploadSuccess }) {
 
       {/* SQL DB TAB */}
       {activeTab === 'db' && (
-        <div>
+        <div id="panel-db" role="tabpanel" aria-labelledby="tab-db">
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem', lineHeight: '1.3' }}>
             Replace the active database with a custom SQLite `.db` file containing new stadium nodes.
           </p>
@@ -264,6 +285,95 @@ function CsvUploader({ onUploadSuccess }) {
             <Database size={12} />
             Replace Database
           </button>
+        </div>
+      )}
+
+      {/* CHAOS SANDBOX TAB */}
+      {activeTab === 'chaos' && (
+        <div id="panel-chaos" role="tabpanel" aria-labelledby="tab-chaos" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: '1.3', marginBottom: '0.25rem' }}>
+            Trigger simulated chaos events. The backend intercepts errors gracefully and outputs actionable fallback diagnostics.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const res = await fetch(`${API_BASE_URL}/api/chaos/simulate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ scenario: 'corrupt_csv' })
+                  });
+                  const data = await res.json();
+                  setIsSuccess(data.status === 'gracefully_caught');
+                  setStatusMsg(`Caught Corrupt CSV Error: "${data.error_caught}". System Action: ${data.fallback_message}\nSOP: ${data.resolution_steps.join(' | ')}`);
+                } catch(err) {
+                  setIsSuccess(false);
+                  setStatusMsg('Chaos trigger connection failure.');
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="btn btn-secondary"
+              style={{ fontSize: '0.75rem', padding: '0.45rem', border: '1px solid rgba(239,68,68,0.4)', color: '#ef4444', background: 'rgba(239,68,68,0.05)', display: 'block', width: '100%', textAlign: 'left' }}
+              disabled={isLoading}
+            >
+              💥 Simulate Corrupt CSV Data
+            </button>
+
+            <button
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const res = await fetch(`${API_BASE_URL}/api/chaos/simulate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ scenario: 'simultaneous_capacity' })
+                  });
+                  const data = await res.json();
+                  setIsSuccess(data.status === 'gracefully_caught');
+                  setStatusMsg(`Caught Capacity Error: "${data.error_caught}". System Action: ${data.fallback_message}\nSOP: ${data.resolution_steps.join(' | ')}`);
+                } catch(err) {
+                  setIsSuccess(false);
+                  setStatusMsg('Chaos trigger connection failure.');
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="btn btn-secondary"
+              style={{ fontSize: '0.75rem', padding: '0.45rem', border: '1px solid rgba(245,158,11,0.4)', color: '#f59e0b', background: 'rgba(245,158,11,0.05)', display: 'block', width: '100%', textAlign: 'left' }}
+              disabled={isLoading}
+            >
+              💥 Simulate Simultaneous 100% Capacity at Multiple Gates
+            </button>
+
+            <button
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const res = await fetch(`${API_BASE_URL}/api/chaos/simulate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ scenario: 'unknown_audio' })
+                  });
+                  const data = await res.json();
+                  setIsSuccess(data.status === 'gracefully_caught');
+                  setStatusMsg(`Caught Audio Error: "${data.error_caught}". System Action: ${data.fallback_message}\nSOP: ${data.resolution_steps.join(' | ')}`);
+                } catch(err) {
+                  setIsSuccess(false);
+                  setStatusMsg('Chaos trigger connection failure.');
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="btn btn-secondary"
+              style={{ fontSize: '0.75rem', padding: '0.45rem', border: '1px solid rgba(70,243,255,0.4)', color: '#46F3FF', background: 'rgba(70,243,255,0.05)', display: 'block', width: '100%', textAlign: 'left' }}
+              disabled={isLoading}
+            >
+              💥 Simulate Unknown Audio Language Input
+            </button>
+          </div>
         </div>
       )}
 

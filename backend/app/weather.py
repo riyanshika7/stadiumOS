@@ -16,8 +16,6 @@ async def fetch_live_stadium_weather() -> dict:
     
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
-            response = client.get(url)
-            # Fetch synchronously if inside synchronous code block, but we use async
             res = await client.get(url)
             if res.status_code == 200:
                 data = res.json()

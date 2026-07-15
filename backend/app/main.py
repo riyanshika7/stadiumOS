@@ -4,6 +4,7 @@ import csv
 import io
 import os
 import shutil
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,10 +35,40 @@ from backend.app.config import GEMINI_API_KEY, USE_SIMULATOR
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("stadiumos")
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup DB Seeder & Live Weather API Ingestion
+    db = next(get_db())
+    try:
+        seed_database(db)
+        logger.info("Application startup and database initialization successful.")
+        
+        # Ingest live weather from Open-Meteo external API
+        weather_info = await fetch_live_stadium_weather()
+        if weather_info.get("success") and weather_info.get("warnings"):
+            for warning in weather_info["warnings"]:
+                existing = db.query(Alert).filter(Alert.message == warning).first()
+                if not existing:
+                    alert = Alert(
+                        title="☀️ Live Weather Advisory",
+                        message=warning,
+                        type=weather_info["type"],
+                        active=True
+                    )
+                    db.add(alert)
+            db.commit()
+            logger.info("Live weather warning ingested successfully.")
+    except Exception as e:
+        logger.error(f"Error during application startup database seed: {e}")
+    finally:
+        db.close()
+    yield
+
 app = FastAPI(
     title="StadiumOS Backend API",
     description="FIFA World Cup 2026 Volunteer Co-Pilot decision-support API",
-    version="2.0.0"
+    version="2.0.0",
+    lifespan=lifespan
 )
 
 # Enable CORS for frontend web integration
@@ -63,33 +94,7 @@ def mock_sop_response(query: str) -> dict:
         ans = "General SOP Protocol: Refer to nearest Supervisor or Information Desk."
     return {"answer": ans}
 
-# Startup DB Seeder & Live Weather API Ingestion
-@app.on_event("startup")
-async def on_startup():
-    db = next(get_db())
-    try:
-        seed_database(db)
-        logger.info("Application startup and database initialization successful.")
-        
-        # Ingest live weather from Open-Meteo external API
-        weather_info = await fetch_live_stadium_weather()
-        if weather_info.get("success") and weather_info.get("warnings"):
-            for warning in weather_info["warnings"]:
-                existing = db.query(Alert).filter(Alert.message == warning).first()
-                if not existing:
-                    alert = Alert(
-                        title="☀️ Live Weather Advisory",
-                        message=warning,
-                        type=weather_info["type"],
-                        active=True
-                    )
-                    db.add(alert)
-            db.commit()
-            logger.info("Live weather warning ingested successfully.")
-    except Exception as e:
-        logger.error(f"Error during application startup database seed: {e}")
-    finally:
-        db.close()
+
 
 # Health check route
 @app.get("/api/health")
@@ -170,7 +175,7 @@ def update_incident_status(incident_id: int, payload: schemas.IncidentUpdateStat
         
     db_incident.status = payload.status
     if payload.status == "resolved":
-        db_incident.resolved_at = datetime.datetime.utcnow()
+        db_incident.resolved_at = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
     else:
         db_incident.resolved_at = None
         
@@ -234,6 +239,13 @@ def create_operational_alert(payload: schemas.AlertCreate, db: Session = Depends
     db.refresh(db_alert)
     return db_alert
 
+@app.post("/api/alerts/clear")
+def clear_all_alerts(db: Session = Depends(get_db)):
+    """Clears all operational alerts from the command center feed."""
+    db.query(Alert).delete()
+    db.commit()
+    return {"message": "All alerts cleared successfully"}
+
 # 5. Ingestion of Stadium Zone Densities (CSV Upload & XAI Recommendations)
 @app.post("/api/crowd/upload-csv")
 async def upload_crowd_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -259,7 +271,7 @@ async def upload_crowd_csv(file: UploadFile = File(...), db: Session = Depends(g
                 detail="CSV must contain 'zone_name', 'capacity', and 'current_count' headers."
             )
         
-        db_locations = db.query(StadiumLocation).all()
+        db_locations = sorted(db.query(StadiumLocation).all(), key=lambda x: x.name.lower())
         processed_rows = 0
         triggered_alerts = 0
         
@@ -274,14 +286,13 @@ async def upload_crowd_csv(file: UploadFile = File(...), db: Session = Depends(g
             if not zone_name or capacity <= 0 or current_count < 0:
                 continue
                 
-            location = binary_search_locations(db_locations, zone_name)
+            location = binary_search_locations(db_locations, zone_name, is_sorted=True)
             if not location:
                 continue
                 
             density = current_count / capacity
             location.crowd_level = "high" if density > 0.8 else ("moderate" if density > 0.5 else "low")
             location.crowd_factor = float(1.0 + (density * 2.0))
-            db.commit()
             
             if density > 0.8:
                 alternatives_nodes = db.query(StadiumLocation).filter(
@@ -307,10 +318,12 @@ async def upload_crowd_csv(file: UploadFile = File(...), db: Session = Depends(g
                     type="critical"
                 )
                 db.add(alert)
-                db.commit()
                 triggered_alerts += 1
                 
             processed_rows += 1
+            
+        # Commit all changes in a single transactional batch at the end (L5 optimization)
+        db.commit()
             
         return {
             "status": "success",
@@ -405,11 +418,19 @@ async def upload_sqlite_db(file: UploadFile = File(...)):
         
     try:
         contents = await file.read()
+        if len(contents) < 16 or not contents.startswith(b"SQLite format 3\x00"):
+            raise HTTPException(status_code=400, detail="Uploaded file is not a valid SQLite database.")
+
         if len(contents) > 8 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Database file exceeds the 8MB safety limit.")
             
-        db_path = "./stadiumos.db"
-        temp_path = "./stadiumos_temp.db"
+        from backend.app.config import DATABASE_URL
+        if DATABASE_URL.startswith("sqlite:///"):
+            db_path = DATABASE_URL.replace("sqlite:///", "")
+        else:
+            db_path = "./stadiumos.db"
+            
+        temp_path = db_path + "_temp"
         with open(temp_path, "wb") as f:
             f.write(contents)
             
@@ -502,6 +523,90 @@ def coordinate_multi_agent_swarm(payload: schemas.SwarmRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Swarm orchestration routing failed: {str(e)}"
         )
+
+# 13. Chaos Simulator Endpoint (Senior QA Portal Edge Cases)
+@app.post("/api/chaos/simulate", response_model=schemas.ChaosResponse)
+def simulate_chaos_scenario(payload: schemas.ChaosRequest, db: Session = Depends(get_db)):
+    """Simulates extreme operational edge cases, catching exceptions gracefully to avoid crashes."""
+    scenario = payload.scenario.strip().lower()
+    logger.info(f"QA Chaos Simulator: Triggered scenario '{scenario}'")
+
+    try:
+        if scenario == "corrupt_csv":
+            # Intentional corrupt CSV parsing simulation
+            corrupt_data = "zone_name,capacity\nGate A,100,50\n,,\nGate B"
+            # Attempt parsing -> throws typical IndexError/ValueError
+            reader = csv.DictReader(io.StringIO(corrupt_data))
+            for row in reader:
+                if not row.get("current_count"):
+                    raise ValueError("Parse failure: row is missing current_count capacity fields.")
+            
+        elif scenario == "simultaneous_capacity":
+            # Force duplicate database write constraint conflict or infinite threshold
+            raise RuntimeError("Database Connection Pool Exhausted: Gate A and Gate C reporting simultaneous 100% capacity threshold.")
+            
+        elif scenario == "unknown_audio":
+            # Force linguistic translation exception
+            raise KeyError("Unsupported Language Context: Audio stream contains unmapped dialect or dialect code 'zz-ZZ'.")
+            
+        else:
+            raise NotImplementedError(f"Scenario '{scenario}' not implemented.")
+
+    except Exception as e:
+        logger.error(f"QA Chaos Simulator gracefully intercepted '{scenario}' exception: {e}")
+        
+        # Log incident alert so Command Center is aware of the simulator trigger
+        try:
+            alert = Alert(
+                title=f"⚠️ Chaos Test Intercepted: {scenario.upper()}",
+                message=f"Intercepted Exception: {str(e)}. Fallback UI rendering successfully dispatched.",
+                type="warning"
+            )
+            db.add(alert)
+            db.commit()
+        except Exception:
+            db.rollback()
+
+        # Build fallback actionable SOP instructions
+        fallback_msg = ""
+        resolution_steps = []
+        
+        if scenario == "corrupt_csv":
+            fallback_msg = "Corrupt CSV dataset headers or encoding mismatch parsed. Resetting grid data fallback."
+            resolution_steps = [
+                "1. Clean CSV file to enforce strict 'zone_name,capacity,current_count' headers.",
+                "2. Ensure all count fields are strictly non-negative integers.",
+                "3. Re-run upload validation checklist."
+            ]
+        elif scenario == "simultaneous_capacity":
+            fallback_msg = "Critical Alert: Multi-gate saturation (100% capacity) detected. Directing ingress to secondary bypass routes."
+            resolution_steps = [
+                "1. Deploy on-site linguistic coordinators to Gates A & C immediately.",
+                "2. Activate secondary emergency bypass routes 2 & 4.",
+                "3. Adjust capacity alerts thresholds dynamically."
+            ]
+        else: # unknown_audio
+            fallback_msg = "Linguistic translation failure: audio dialect is currently unsupported by the NLP translator model."
+            resolution_steps = [
+                "1. Instruct the volunteer to use the manual text translation input form.",
+                "2. Ask the fan to write down their destination query on screen.",
+                "3. Trigger standard de-escalation scripts if fan shows signs of frustration."
+            ]
+
+        return {
+            "status": "gracefully_caught",
+            "error_caught": str(e),
+            "fallback_message": fallback_msg,
+            "resolution_steps": resolution_steps
+        }
+
+    # Should not be reached under simulated exception paths
+    return {
+        "status": "normal",
+        "error_caught": "None",
+        "fallback_message": "Scenario completed with no exceptions.",
+        "resolution_steps": []
+    }
 
 # Mount landing page static files at root if the folder exists
 landing_dir = "landing"

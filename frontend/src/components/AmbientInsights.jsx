@@ -1,31 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Brain, HelpCircle, Eye, AlertTriangle, ShieldCheck, Cog } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Brain, AlertTriangle, ShieldCheck, Cog } from 'lucide-react';
+import { API_BASE_URL, AMBIENT_POLL_INTERVAL_MS } from '../constants';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-
-function AmbientInsights({ locations, alerts, incidents }) {
+// AmbientInsights receives locations/alerts/incidents for future use but
+// currently derives its data from its own API endpoint.
+function AmbientInsights({ locations: _locations, alerts: _alerts, incidents: _incidents }) {
   const [insights, setInsights] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const fetchInsights = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/ambient/insights`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setInsights(data);
+    } catch (err) {
+      console.error('Error fetching proactive insights:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Poll for predictive insights
   useEffect(() => {
     fetchInsights();
-    
-    const interval = setInterval(fetchInsights, 15000);
+    const interval = setInterval(fetchInsights, AMBIENT_POLL_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, []);
-
-  const fetchInsights = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/ambient/insights`);
-      const data = await res.json();
-      setInsights(data);
-    } catch (err) {
-      console.error("Error fetching proactive insights:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchInsights]);
 
   if (loading || !insights) {
     return (

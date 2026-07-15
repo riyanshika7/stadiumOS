@@ -1,1 +1,1 @@
-# CopaPilot Tests Package
+# StadiumOS Tests Package

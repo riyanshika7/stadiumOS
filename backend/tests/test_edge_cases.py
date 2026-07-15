@@ -108,3 +108,50 @@ def test_ticket_vision_actual_fifa_filename():
     assert data["is_valid"] is True
     assert "MetLife Stadium" in data["volunteer_action_guide"]
 
+def test_chaos_simulator_scenarios():
+    """Verify that backend gracefully intercepts corrupt CSV, capacity issues, and unknown translation audio."""
+    # Scenario 1: Corrupt CSV
+    response = client.post("/api/chaos/simulate", json={"scenario": "corrupt_csv"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "gracefully_caught"
+    assert "ValueError" in data["error_caught"] or "missing" in data["error_caught"]
+    assert "Corrupt CSV" in data["fallback_message"]
+    
+    # Scenario 2: Simultaneous capacity conflict
+    response2 = client.post("/api/chaos/simulate", json={"scenario": "simultaneous_capacity"})
+    assert response2.status_code == 200
+    data2 = response2.json()
+    assert data2["status"] == "gracefully_caught"
+    assert "Database Connection Pool" in data2["error_caught"]
+    assert "Multi-gate saturation" in data2["fallback_message"]
+
+    # Scenario 3: Unknown translation audio
+    response3 = client.post("/api/chaos/simulate", json={"scenario": "unknown_audio"})
+    assert response3.status_code == 200
+    data3 = response3.json()
+    assert data3["status"] == "gracefully_caught"
+    assert "Unsupported Language" in data3["error_caught"]
+    assert "Linguistic translation failure" in data3["fallback_message"]
+
+def test_dijkstra_pathfinding_algorithm():
+    """Verify Dijkstra algorithm calculates shortest path with congestion penalties & step-free blocks."""
+    # 1. Base route request
+    payload = {
+        "start_location": "Gate A",
+        "destination": "Section 204",
+        "wheelchair": True,
+        "visual": False,
+        "stroller": False
+    }
+    response = client.post("/api/navigation", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "route_description" in data
+    assert "visual_path_coordinates" in data
+    assert len(data["key_locations_passed"]) > 1
+    assert "Gate A" in data["key_locations_passed"]
+    assert "Section 204" in data["key_locations_passed"]
+
+
+

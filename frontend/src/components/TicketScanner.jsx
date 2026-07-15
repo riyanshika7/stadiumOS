@@ -1,29 +1,29 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Camera, ShieldAlert, CheckCircle, UploadCloud, RefreshCw } from 'lucide-react';
+import { API_BASE_URL } from '../constants';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+// Module-level constant: avoids recreation on every render.
+const MOCK_TICKET_B64 =
+  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP' +
+  '//////////////////////////////////////////////////////////////////////' +
+  '//////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=';
 
 function TicketScanner() {
   const [scanResult, setScanResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [selectedMock, setSelectedMock] = useState('');
-  
+
   // File upload states
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [base64Data, setBase64Data] = useState('');
   const [uploadedFilename, setUploadedFilename] = useState('');
   const fileInputRef = useRef(null);
 
-  // Simulated base64 fallback image
-  const mockTicketBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=";
-
-  const handleScan = async (mockType, customBase64 = null, filename = '') => {
+  const handleScan = useCallback(async (mockType, customBase64 = null, filename = '') => {
     setIsScanning(true);
     if (!customBase64) {
       setSelectedMock(mockType);
     }
-    
-    const payloadB64 = customBase64 || mockTicketBase64;
+    const payloadB64 = customBase64 || MOCK_TICKET_B64;
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/volunteer/vision-ticket`, {
@@ -39,11 +39,12 @@ function TicketScanner() {
       const data = await res.json();
       setScanResult(data);
     } catch (err) {
-      console.error("Ticket vision scan connection error:", err);
+      console.error('Ticket vision scan connection error:', err);
+      setScanResult(null);
     } finally {
       setIsScanning(false);
     }
-  };
+  }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -52,13 +53,11 @@ function TicketScanner() {
     const fname = file.name;
     setUploadedFilename(fname);
 
-    // Set preview URL
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreviewUrl(reader.result);
-      setBase64Data(reader.result);
       setSelectedMock('custom');
-      // Automatically trigger scan with custom uploaded image + filename
+      // Automatically trigger scan with the uploaded image
       handleScan('custom', reader.result, fname);
     };
     reader.readAsDataURL(file);
@@ -72,7 +71,6 @@ function TicketScanner() {
 
   const resetScanner = () => {
     setPreviewUrl(null);
-    setBase64Data('');
     setScanResult(null);
     setSelectedMock('');
     setUploadedFilename('');
@@ -144,9 +142,13 @@ function TicketScanner() {
         style={{ display: 'none' }}
       />
 
-      {/* Drag & Drop Visual Box */}
-      <div 
+      {/* Accessible drag & drop zone */}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="Upload a ticket image to scan"
         onClick={triggerFileSelect}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); triggerFileSelect(); } }}
         style={{ 
           height: '200px', 
           border: previewUrl ? '2px solid var(--color-primary)' : '2px dashed var(--border-color)', 

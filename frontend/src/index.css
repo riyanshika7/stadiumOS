@@ -625,6 +625,11 @@ input:focus, textarea:focus, select:focus {
 }
 
 .speech-tag {
+  /* Reset browser default button styles when used on <button> elements */
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
@@ -637,6 +642,8 @@ input:focus, textarea:focus, select:focus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  line-height: 1.3;
 }
 
 .speech-tag:hover {
@@ -649,6 +656,12 @@ input:focus, textarea:focus, select:focus {
 
 .speech-tag:active {
   transform: scale(0.97);
+}
+
+/* Keyboard focus ring on speech-tag buttons */
+.speech-tag:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 
@@ -967,3 +980,221 @@ body.high-glare-mode {
   }
 }
 
+/* ==========================================================================
+   CMD+K COMMAND BAR & TELEMETRY GLOWS (TOP 1% ENGINEERING)
+   ========================================================================== */
+.command-bar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 6, 18, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 10000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+  animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.command-bar-window {
+  width: 90%;
+  max-width: 620px;
+  background: rgba(10, 15, 36, 0.95);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(168, 85, 247, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.command-bar-search-wrapper {
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem;
+}
+
+.command-bar-input {
+  width: 100%;
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-main) !important;
+  font-size: 1.05rem;
+  padding: 0.75rem 1rem;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.command-bar-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.command-bar-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+}
+
+.command-bar-item.selected {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+}
+
+.command-bar-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.command-bar-item.selected .command-bar-badge {
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.command-bar-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.command-bar-footer {
+  background: rgba(5, 8, 22, 0.6);
+  border-top: 1px solid var(--border-color);
+  padding: 0.6rem 1rem;
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* SVG Sparkline Animation */
+.dash-sparkline {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: drawSparkline 3s linear infinite;
+}
+
+@keyframes drawSparkline {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Glowing connections in SVG Multi-Agent graphs */
+.swarm-flow-line {
+  animation: dashOffset 1.5s linear infinite;
+}
+
+@keyframes dashOffset {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════════
+   INCLUSIVE MODE — WCAG 2.1 AA Accessibility Styles
+   Wheelchair Mode
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Global focus-visible ring override (WCAG 2.4.7 — keyboard visible focus) */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Inclusive mode toggle buttons: accessible focus ring */
+#wheelchair-mode-toggle:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* High-contrast wheelchair active badge on map route results */
+.wheelchair-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: rgba(70, 243, 255, 0.12);
+  border: 1px solid rgba(70, 243, 255, 0.4);
+  color: #46F3FF;
+}
+
+/* Screen-reader only utility class (WCAG compliant sr-only) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip-to-content link for keyboard users (WCAG 2.4.1) */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  z-index: 99999;
+  padding: 0.5rem 1rem;
+  background: #FFDD00;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   EXTRACTED KEYFRAME ANIMATIONS
+   (Previously inline inside JSX components — moved here for maintainability)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Audio waveform visualizer in Translator.jsx */
+@keyframes bounceWave {
+  from { transform: scaleY(0.2); }
+  to   { transform: scaleY(1.1); }
+}
+
+/* CCTV scanning sweep bar in CctvMonitor.jsx */
+@keyframes scanLine {
+  0%   { top: 0%; }
+  50%  { top: 100%; }
+  100% { top: 0%; }
+}
+
+/* Reduced-motion support: disable non-essential animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

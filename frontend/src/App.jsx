@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Clock, 
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import {
+  Clock,
   UserCheck,
   Sun,
-  Eye,
   WifiOff
 } from 'lucide-react';
 
@@ -16,15 +15,127 @@ import TicketScanner from './components/TicketScanner';
 import AmbientInsights from './components/AmbientInsights';
 import CctvMonitor from './components/CctvMonitor';
 import SwarmOrchestrator from './components/SwarmOrchestrator';
+import LandingPage from './components/LandingPage';
+import WhatIfSimulator from './components/WhatIfSimulator';
+import useAudioFeedback from './hooks/useAudioFeedback';
+import { InclusiveModeProvider } from './hooks/useInclusiveMode';
+import InclusiveModePanel from './components/InclusiveMode';
+import { API_BASE_URL, LIVE_POLL_INTERVAL_MS, OFFLINE_INCIDENTS_KEY } from './constants';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+// Lazy-load the 3D Digital Twin — loads Three.js only when the dashboard
+// tab is actually visited, shaving ~500 kB from the initial bundle.
+const DashboardDigitalTwin = lazy(() =>
+  import('./components/DashboardDigitalTwin')
+);
+
+const COMMANDS = [
+  { id: 'sim-medical', name: '🚨 Simulate Urgent Medical Incident', category: 'Simulation', action: 'medical' },
+  { id: 'sim-surge', name: '📈 Simulate Crowd Congestion at Gate C', category: 'Simulation', action: 'surge' },
+  { id: 'glare', name: '☀ Toggle Glare Mode (Outdoor Display)', category: 'Settings', action: 'glare' },
+  { id: 'nav-medical', name: '🧭 Plan Route to Medical Centre', category: 'Navigation', action: 'route-medical' },
+  { id: 'nav-gatec', name: '🧭 Plan Route to Gate C', category: 'Navigation', action: 'route-gatec' },
+  { id: 'clear-alerts', name: '🗑 Clear Bulletin Alerts', category: 'Management', action: 'clear' },
+];
+
+function CommandBar({ isOpen, onClose, onExecute }) {
+  const [search, setSearch] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSearch("");
+      setSelectedIndex(0);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [isOpen]);
+
+  const filtered = COMMANDS.filter(cmd => 
+    cmd.name.toLowerCase().includes(search.toLowerCase()) ||
+    cmd.category.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isOpen) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev + 1) % Math.max(1, filtered.length));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev - 1 + filtered.length) % Math.max(1, filtered.length));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (filtered[selectedIndex]) {
+          onExecute(filtered[selectedIndex].action);
+          onClose();
+        }
+      } else if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, filtered, selectedIndex]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="command-bar-overlay" onClick={onClose}>
+      <div className="command-bar-window" onClick={e => e.stopPropagation()}>
+        <div className="command-bar-search-wrapper">
+          <input 
+            ref={inputRef}
+            type="text" 
+            placeholder="Type a command or search actions... (e.g. simulate, glare, route)" 
+            value={search}
+            onChange={e => { setSearch(e.target.value); setSelectedIndex(0); }}
+            className="command-bar-input"
+          />
+        </div>
+        <div className="command-bar-list">
+          {filtered.length === 0 ? (
+            <div className="command-bar-empty">No commands matched.</div>
+          ) : (
+            filtered.map((cmd, idx) => {
+              const isSelected = idx === selectedIndex;
+              return (
+                <div 
+                  key={cmd.id} 
+                  className={`command-bar-item ${isSelected ? 'selected' : ''}`}
+                  onClick={() => { onExecute(cmd.action); onClose(); }}
+                  onMouseEnter={() => setSelectedIndex(idx)}
+                >
+                  <span>{cmd.name}</span>
+                  <span className="command-bar-badge">{cmd.category}</span>
+                </div>
+              );
+            })
+          )}
+        </div>
+        <div className="command-bar-footer">
+          <span>↑↓ to navigate</span>
+          <span>⏎ to select</span>
+          <span>esc to close</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function App() {
+  const [currentView, setCurrentView] = useState('landing');
   const [locations, setLocations] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [isGlareMode, setIsGlareMode] = useState(false);
   
+  // Custom Command states (Top 1% Redesign)
+  const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
+  const [activeNode, setActiveNode] = useState(null);
+  const [routeStart, setRouteStart] = useState("");
+  const [routeDest, setRouteDest] = useState("");
+
   // Offline-First Sync state variables
   const [isServerOffline, setIsServerOffline] = useState(false);
   const [offlineIncidents, setOfflineIncidents] = useState([]);
@@ -34,7 +145,7 @@ function App() {
 
   useEffect(() => {
     // Load initial offline queue from local storage if present
-    const cached = localStorage.getItem('offline_incidents');
+    const cached = localStorage.getItem(OFFLINE_INCIDENTS_KEY);
     if (cached) {
       setOfflineIncidents(JSON.parse(cached));
     }
@@ -48,11 +159,80 @@ function App() {
       fetchAlerts();
       fetchIncidents();
       checkAndSyncOfflineQueue();
-    }, 4000);
+    }, LIVE_POLL_INTERVAL_MS);
 
-    return () => clearInterval(interval);
+    // Global Command Bar key listener (Ctrl+K or Cmd+K)
+    const handleGlobalKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandBarOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+    };
   }, []);
+  const playAudioFeedback = useAudioFeedback();
 
+  const executeCommand = async (action) => {
+    playAudioFeedback('click');
+    switch (action) {
+      case 'medical':
+        setActiveNode({ name: "Medical Centre", position: [2.5, 0.2, 2.5], color: "#22c55e" });
+        try {
+          await fetch(`${API_BASE_URL}/api/incident`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: "Spanish-speaking fan reporting severe chest pain near MetLife Medical Centre." }),
+          });
+          fetchIncidents();
+          fetchAlerts();
+          playAudioFeedback('alert');
+        } catch (e) {
+          console.error(e);
+        }
+        break;
+      case 'surge':
+        setActiveNode({ name: "Gate C", position: [0, 0.2, 4.8], color: "#00C8FF" });
+        try {
+          await fetch(`${API_BASE_URL}/api/incident`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: "Gate C density crosses 80%. Suggesting crowd redirection routes." }),
+          });
+          fetchIncidents();
+          fetchAlerts();
+          playAudioFeedback('alert');
+        } catch (e) {
+          console.error(e);
+        }
+        break;
+      case 'glare':
+        setIsGlareMode((prev) => !prev);
+        break;
+      case 'route-medical':
+        setRouteStart("Gate A");
+        setRouteDest("Medical Centre");
+        break;
+      case 'route-gatec':
+        setRouteStart("Gate D");
+        setRouteDest("Gate C");
+        break;
+      case 'clear':
+        try {
+          await fetch(`${API_BASE_URL}/api/alerts/clear`, { method: 'POST' });
+          fetchAlerts();
+        } catch (e) {
+          console.error(e);
+        }
+        break;
+      default:
+        break;
+    }
+  };
   const fetchLocations = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/locations`);
@@ -91,7 +271,7 @@ function App() {
 
   // Background queue syncer when connectivity is restored
   const checkAndSyncOfflineQueue = async () => {
-    const cached = localStorage.getItem('offline_incidents');
+    const cached = localStorage.getItem(OFFLINE_INCIDENTS_KEY);
     if (!cached) return;
     
     const queue = JSON.parse(cached);
@@ -112,7 +292,7 @@ function App() {
           });
         }
         // Clear local cache queue upon successful flush
-        localStorage.removeItem('offline_incidents');
+        localStorage.removeItem(OFFLINE_INCIDENTS_KEY);
         setOfflineIncidents([]);
         fetchIncidents();
         fetchAlerts();
@@ -134,7 +314,7 @@ function App() {
     if (isOffline || isServerOffline) {
       const newQueue = [...offlineIncidents, { description: incidentDescription, timestamp: new Date().toISOString() }];
       setOfflineIncidents(newQueue);
-      localStorage.setItem('offline_incidents', JSON.stringify(newQueue));
+      localStorage.setItem(OFFLINE_INCIDENTS_KEY, JSON.stringify(newQueue));
       
       // Inject local mock incident onto the UI list immediately to reassure volunteer
       const tempMockInc = {
@@ -187,8 +367,19 @@ function App() {
     }
   });
 
+  if (currentView === 'landing') {
+    return (
+      <InclusiveModeProvider>
+        <LandingPage onEnterConsole={() => setCurrentView('dashboard')} />
+      </InclusiveModeProvider>
+    );
+  }
+
   return (
+    <InclusiveModeProvider>
     <div className="app-container">
+      {/* WCAG 2.4.1 — Skip to main content link for keyboard users */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       {/* Header Bar */}
       <header className="app-header">
         <div className="logo-section">
@@ -219,6 +410,9 @@ function App() {
         )}
 
         <div className="header-status">
+          {/* ♿ Inclusive Mode Controls: Deaf Fan Mode + Wheelchair Mode */}
+          <InclusiveModePanel />
+
           <button 
             onClick={toggleGlareMode} 
             className="btn btn-secondary" 
@@ -248,6 +442,22 @@ function App() {
             <span>{isServerOffline ? 'OFFLINE CACHING ACTIVE' : 'STADIUM COMMS ACTIVE'}</span>
           </div>
           
+          <button 
+            onClick={() => setCurrentView('landing')} 
+            className="btn btn-secondary" 
+            style={{ 
+              padding: '0.4rem 0.8rem', 
+              fontSize: '0.8rem', 
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
+              marginRight: '0.5rem',
+              cursor: 'pointer'
+            }}
+          >
+            🏟️ Exit Console
+          </button>
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
             <UserCheck size={16} style={{ color: 'var(--color-accent)' }} />
             <span>ID: VOL-4028</span>
@@ -357,13 +567,29 @@ function App() {
         </aside>
 
         {/* Right Dashboard Area */}
-        <main className="main-content">
+        <main id="main-content" className="main-content" tabIndex="-1" aria-label="Stadium Operations Dashboard">
           
           {/* Top Ambient Proactive Insights Banner */}
           <AmbientInsights locations={locations} alerts={alerts} incidents={incidents} />
 
           {/* Top Alerts feed */}
           <AlertFeed alerts={alerts} />
+
+          {/* DYNAMIC 3D DIGITAL TWIN COCKPIT (lazy-loaded — Three.js only downloads when needed) */}
+          <Suspense fallback={
+            <div className="glass-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '520px', color: 'var(--color-primary)', fontSize: '0.9rem', gap: '0.75rem' }}>
+              <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
+              Loading 3D Digital Twin...
+            </div>
+          }>
+            <DashboardDigitalTwin
+              activeNode={activeNode}
+              onNodeSelect={setActiveNode}
+              onTriggerSimulation={executeCommand}
+              onSetRouteStart={setRouteStart}
+              onSetRouteDest={setRouteDest}
+            />
+          </Suspense>
 
           {/* Double Column Panels: Translation and Navigation */}
           <section className="action-area">
@@ -372,15 +598,22 @@ function App() {
             <Translator />
 
             {/* Panel 2: Accessibility Navigation Planner */}
-            <MapViewer locations={locations} />
+            <MapViewer 
+              locations={locations} 
+              forcedStart={routeStart}
+              forcedEnd={routeDest}
+            />
 
           </section>
 
           {/* New V2.0 Multimodal Credential Vision Scanner */}
           <TicketScanner />
 
-          {/* New V2.0 Hierarchical Agent Swarm Orchestrator */}
+           {/* New V2.0 Hierarchical Agent Swarm Orchestrator */}
           <SwarmOrchestrator />
+
+          {/* AI "What-If" Concourse Congestion Simulator (Top 1% Redesign) */}
+          <WhatIfSimulator />
 
           {/* New V2.0 Live CCTV Predictive Triage */}
           <CctvMonitor />
@@ -390,7 +623,13 @@ function App() {
 
         </main>
       </div>
+      <CommandBar 
+        isOpen={isCommandBarOpen}
+        onClose={() => setIsCommandBarOpen(false)}
+        onExecute={executeCommand}
+      />
     </div>
+    </InclusiveModeProvider>
   );
 }
 

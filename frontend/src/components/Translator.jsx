@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Languages, Volume2, AlertCircle, Sparkles, ShieldAlert } from 'lucide-react';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+import { API_BASE_URL } from '../constants';
 
 function Translator() {
   const [translateInput, setTranslateInput] = useState('');
@@ -24,10 +23,12 @@ function Translator() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: translateInput }),
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setTranslationResult(data);
     } catch (err) {
       console.error('Translation error:', err);
+      setTranslationResult(null);
     } finally {
       setIsTranslating(false);
     }
@@ -55,24 +56,25 @@ function Translator() {
     }
   };
 
-  const simulateTranslation = (phrase) => {
+  // Converts the promise-chain pattern to async/await for consistency.
+  const simulateTranslation = async (phrase) => {
     setTranslateInput(phrase);
     setIsTranslating(true);
     setDeescalateResult(null);
-    fetch(`${API_BASE_URL}/api/translate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: phrase }),
-    })
-    .then(res => res.json())
-    .then(data => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/translate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: phrase }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
       setTranslationResult(data);
+    } catch (err) {
+      console.error('Translation simulation error:', err);
+    } finally {
       setIsTranslating(false);
-    })
-    .catch(err => {
-      console.error(err);
-      setIsTranslating(false);
-    });
+    }
   };
 
   return (
@@ -86,38 +88,38 @@ function Translator() {
         Translate queries from foreign fans instantly. Use speech simulator tags below or type custom text.
       </p>
 
-      {/* Expanded languages list */}
-      <div className="speech-helpers">
-        <span className="speech-tag" onClick={() => simulateTranslation("¿Dónde puedo encontrar el ascensor más cercano para silla de ruedas?")}>
+      {/* Language quick-fill buttons */}
+      <div className="speech-helpers" role="group" aria-label="Language phrase simulators">
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation('¿Dónde puedo encontrar el ascensor más cercano para silla de ruedas?')}>
           🇪🇸 Spanish: Elevator Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("Où se trouve la billetterie s'il vous plaît?")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation("Où se trouve la billetterie s'il vous plaît?")}>
           🇫🇷 French: Ticket Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("ห้องน้ำอยู่ที่ไหน")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation('ห้องน้ำอยู่ที่ไหน')}>
           🇹🇭 Thai: Restroom Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("トイレはどこですか")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation('トイレはどこですか')}>
           🇯🇵 Japanese: Restroom Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("洗手间在哪里")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation('洗手间在哪里')}>
           🇨🇳 Mandarin: Restroom Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("أين المرحاض؟")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation('أين المرحاض؟')}>
           🇸🇦 Arabic: Restroom Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("Wo ist die Toilette?")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation('Wo ist die Toilette?')}>
           🇩🇪 German: Restroom Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("Onde fica o banheiro?")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation('Onde fica o banheiro?')}>
           🇧🇷 Portuguese: Restroom Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("Dov'è il bagno?")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation("Dov'è il bagno?")}>
           🇮🇹 Italian: Restroom Query
-        </span>
-        <span className="speech-tag" onClick={() => simulateTranslation("Me siento muy mal, tengo dolor de pecho y me falta el aire.")}>
+        </button>
+        <button type="button" className="speech-tag" onClick={() => simulateTranslation('Me siento muy mal, tengo dolor de pecho y me falta el aire.')}>
           🚨 Spanish: Panic Medical
-        </span>
+        </button>
       </div>
 
       <form onSubmit={handleTranslate}>
@@ -145,12 +147,7 @@ function Translator() {
           <div style={{ width: '4px', height: '35px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate 0.1s' }} />
           <div style={{ width: '4px', height: '25px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate 0.3s' }} />
           <div style={{ width: '4px', height: '10px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate 0.5s' }} />
-          <style>{`
-            @keyframes bounceWave {
-              from { transform: scaleY(0.2); }
-              to { transform: scaleY(1.1); }
-            }
-          `}</style>
+          {/* bounceWave keyframes are defined in index.css */}
         </div>
       )}
 

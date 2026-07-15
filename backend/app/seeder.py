@@ -123,6 +123,9 @@ def seed_database(db: Session):
     db.add_all(alerts)
     
     # 3. Seed Historical Incidents
+    def utc_now():
+        return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+
     incidents = [
         Incident(
             category="hazard",
@@ -131,8 +134,8 @@ def seed_database(db: Session):
             description="Soft drink spilled near counter creating a slippery surface.",
             required_action="Dispatch cleaning crew with wet floor signs.",
             status="resolved",
-            reported_at=datetime.datetime.utcnow() - datetime.timedelta(hours=2),
-            resolved_at=datetime.datetime.utcnow() - datetime.timedelta(hours=1, minutes=45)
+            reported_at=utc_now() - datetime.timedelta(hours=2),
+            resolved_at=utc_now() - datetime.timedelta(hours=1, minutes=45)
         ),
         Incident(
             category="medical",
@@ -141,8 +144,8 @@ def seed_database(db: Session):
             description="Elderly fan showing signs of severe dehydration, needs urgent cooling and assessment.",
             required_action="Dispatch medical responders with electrolytes and stretcher.",
             status="resolved",
-            reported_at=datetime.datetime.utcnow() - datetime.timedelta(hours=1),
-            resolved_at=datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
+            reported_at=utc_now() - datetime.timedelta(hours=1),
+            resolved_at=utc_now() - datetime.timedelta(minutes=30)
         ),
         Incident(
             category="lost_found",
@@ -151,7 +154,7 @@ def seed_database(db: Session):
             description="Found a child's toy camera. Handed over to lost & found desk.",
             required_action="Log in central registry and notify information booths.",
             status="open",
-            reported_at=datetime.datetime.utcnow() - datetime.timedelta(minutes=20)
+            reported_at=utc_now() - datetime.timedelta(minutes=20)
         )
     ]
     db.add_all(incidents)

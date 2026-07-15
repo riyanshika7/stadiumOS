@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 
@@ -20,6 +20,8 @@ class IncidentCreate(BaseModel):
     description: str = Field(..., min_length=3, description="Raw voice or text report from the volunteer")
 
 class IncidentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     category: str
     urgency: str
@@ -29,9 +31,6 @@ class IncidentResponse(BaseModel):
     status: str
     reported_at: datetime
     resolved_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
 
 class IncidentUpdateStatus(BaseModel):
     status: str = Field(..., description="New status (open, in_progress, resolved)")
@@ -49,6 +48,7 @@ class NavigationResponse(BaseModel):
     key_locations_passed: List[str]
     accessibility_features_highlighted: List[str]
     estimated_time_minutes: int
+    visual_path_coordinates: Optional[List[List[float]]] = []
 
 # Alert schemas
 class AlertCreate(BaseModel):
@@ -57,6 +57,8 @@ class AlertCreate(BaseModel):
     type: str = Field("info", description="Alert severity: info, warning, critical")
 
 class AlertResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title: str
     message: str
@@ -64,11 +66,10 @@ class AlertResponse(BaseModel):
     active: bool
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
 # Location schemas
 class LocationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     type: str
@@ -76,9 +77,6 @@ class LocationResponse(BaseModel):
     crowd_level: str
     crowd_factor: float
     description: str
-
-    class Config:
-        from_attributes = True
 
 # Ticket Vision schemas (New V2.0)
 class TicketVisionRequest(BaseModel):
@@ -134,3 +132,13 @@ class SwarmResponse(BaseModel):
     safety_playbook: str
     routing_playbook: str
     ops_playbook: str
+
+# Chaos Simulator schemas (Senior QA Portal red team tests)
+class ChaosRequest(BaseModel):
+    scenario: str = Field(..., description="The QA edge case scenario: corrupt_csv, simultaneous_capacity, or unknown_audio")
+
+class ChaosResponse(BaseModel):
+    status: str
+    error_caught: str
+    fallback_message: str
+    resolution_steps: List[str]

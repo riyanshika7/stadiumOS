@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { ALERT_FEED_MAX_VISIBLE } from '../constants';
 
 function AlertFeed({ alerts }) {
   const [showAll, setShowAll] = useState(false);
-  const maxVisible = 2;
+  const maxVisible = ALERT_FEED_MAX_VISIBLE;
   const displayedAlerts = showAll ? alerts : alerts.slice(0, maxVisible);
 
   return (

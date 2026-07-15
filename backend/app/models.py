@@ -2,6 +2,10 @@ import datetime
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime
 from backend.app.db import Base
 
+def get_utc_now():
+    """Returns a timezone-naive UTC datetime to avoid deprecation warnings."""
+    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+
 class StadiumLocation(Base):
     __tablename__ = "stadium_locations"
     
@@ -23,7 +27,7 @@ class Incident(Base):
     description = Column(String, nullable=False)
     required_action = Column(String, default="")
     status = Column(String, default="open")  # open, in_progress, resolved
-    reported_at = Column(DateTime, default=datetime.datetime.utcnow)
+    reported_at = Column(DateTime, default=get_utc_now)
     resolved_at = Column(DateTime, nullable=True)
 
 class Alert(Base):
@@ -34,4 +38,4 @@ class Alert(Base):
     message = Column(String, nullable=False)
     type = Column(String, default="info")  # info, warning, critical
     active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=get_utc_now)
