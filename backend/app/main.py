@@ -608,12 +608,17 @@ def simulate_chaos_scenario(payload: schemas.ChaosRequest, db: Session = Depends
         "resolution_steps": []
     }
 
-# Mount landing page static files at root if the folder exists
+# Mount landing page static files at root if any build folder exists
 landing_dir = "landing"
+if os.path.exists("frontend/dist") and os.path.isdir("frontend/dist"):
+    landing_dir = "frontend/dist"
+elif os.path.exists("../landing") and os.path.isdir("../landing"):
+    landing_dir = "../landing"
+
 if os.path.exists(landing_dir) and os.path.isdir(landing_dir):
     app.mount("/", StaticFiles(directory=landing_dir, html=True), name="landing")
 else:
-    logger.warning("Landing directory not found. Skipping static file mounting at root.")
+    logger.warning(f"Static directory '{landing_dir}' not found. Skipping static file mounting at root.")
     @app.get("/")
     def read_root():
         return {

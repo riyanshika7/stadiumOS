@@ -11,7 +11,7 @@ export default defineConfig({
   },
 
   build: {
-    outDir: '../landing',
+    outDir: 'dist',
     emptyOutDir: true,
     // Three.js is inherently large (~966 kB min, ~269 kB gzip).
     // It is loaded lazily via DashboardDigitalTwin React.lazy(), so it does
