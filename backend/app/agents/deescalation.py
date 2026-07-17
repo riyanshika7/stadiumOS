@@ -45,7 +45,7 @@ def coach_deescalation_genai(query: str, tone: str, context: str) -> dict:
     """
     
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.1-pro',
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,

@@ -47,7 +47,7 @@ def generate_crowd_recommendation_genai(zone_name: str, capacity: int, count: in
     """
     
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.1-pro',
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,

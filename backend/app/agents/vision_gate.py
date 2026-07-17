@@ -53,7 +53,7 @@ def analyze_ticket_vision_genai(image_b64: str) -> dict:
     image_data = base64.b64decode(image_b64)
     
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.1-pro',
         contents=[
             types.Part.from_bytes(
                 data=image_data,

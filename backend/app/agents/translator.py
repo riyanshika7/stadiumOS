@@ -44,7 +44,7 @@ def translate_query_genai(query: str) -> dict:
     client = genai.Client(api_key=GEMINI_API_KEY)
     
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.1-pro',
         contents=f"Analyze and process this fan query: '{query}'",
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,

@@ -399,7 +399,7 @@ def query_sop_playbook(payload: schemas.TranslateRequest, db: Session = Depends(
         {PLAYBOOK_TEXT_CACHE[:8000]}
         """
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-3.1-pro',
             contents=prompt,
             config=types.GenerateContentConfig(temperature=0.2)
         )

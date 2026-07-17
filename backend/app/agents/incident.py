@@ -33,7 +33,7 @@ def parse_incident_genai(raw_text: str) -> dict:
     client = genai.Client(api_key=GEMINI_API_KEY)
     
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.1-pro',
         contents=f"Extract and structure this incident report: '{raw_text}'",
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,

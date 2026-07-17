@@ -77,15 +77,15 @@ function App() {
     toast.success(`Welcome, ${id}`);
   };
 
-  if (!isAuthenticated) {
-    return <AuthScreen onLogin={handleLogin} />;
-  }
-
   useEffect(() => {
     if (currentView === VIEW_MISSION_CONTROL) {
       fetchMissionStatus();
     }
   }, [currentView]);
+
+  if (!isAuthenticated) {
+    return <AuthScreen onLogin={handleLogin} />;
+  }
 
   if (currentView === VIEW_LANDING) {
     return (

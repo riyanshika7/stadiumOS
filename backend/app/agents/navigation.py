@@ -49,7 +49,7 @@ def navigate_genai(start: str, end: str, crowd_level: str, accessibility: dict, 
     """
     
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.1-pro',
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,

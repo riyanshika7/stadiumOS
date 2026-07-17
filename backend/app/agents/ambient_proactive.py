@@ -44,7 +44,7 @@ def generate_insights_genai(locations_data: list, incidents_data: list, weather_
     """
     
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-3.1-pro',
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
