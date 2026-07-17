@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Bell, X } from 'lucide-react';
 import { ALERT_FEED_MAX_VISIBLE } from '../constants';
 
 function AlertFeed({ alerts }) {

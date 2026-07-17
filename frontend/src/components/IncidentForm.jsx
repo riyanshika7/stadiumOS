@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Send } from 'lucide-react';
 import { API_BASE_URL } from '../constants';
 
 function IncidentForm({ onIncidentSubmitted }) {

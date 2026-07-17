@@ -1,0 +1,50 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/${_GCP_PROJECT_ID}/stadiumos-api:${_VERSION}'
+      - '-f'
+      - 'backend/Dockerfile'
+      - '.'
+
+  # Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/${_GCP_PROJECT_ID}/stadiumos-api:${_VERSION}'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'stadiumos-api'
+      - '--image=gcr.io/${_GCP_PROJECT_ID}/stadiumos-api:${_VERSION}'
+      - '--region=${_GCP_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--memory=2Gi'
+      - '--cpu=2'
+      - '--min-instances=1'
+      - '--max-instances=10'
+      - '--concurrency=80'
+      - '--timeout=300'
+      - '--set-env-vars=ENVIRONMENT=production'
+      - '--set-secrets=GEMINI_API_KEY=gemini-api-key:latest'
+      - '--set-secrets=FIREBASE_CREDENTIALS_PATH=firebase-credentials-path:latest'
+      - '--set-secrets=DATABASE_URL=stadiumos-database-url:latest'
+      - '--add-cloudsql-instances=${_CLOUD_SQL_INSTANCE}'
+
+substitutions:
+  _GCP_PROJECT_ID: your-gcp-project-id
+  _GCP_REGION: us-central1
+  _VERSION: v3.0.0
+  _CLOUD_SQL_INSTANCE: your-project:us-central1:stadiumos-db
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1200s

@@ -1,320 +1,520 @@
-# <p align="center">🏟️ StadiumOS</p>
-
 <p align="center">
-  <strong>The AI-Powered Operating System for World-Class Stadiums</strong>
+  <img src="stadiumos.png" alt="StadiumOS" width="600px">
 </p>
 
 <p align="center">
-  <img src="stadiumos.png" alt="StadiumOS Logo" width="550px">
+  <strong>The AI Operating System for World-Class Stadiums</strong><br>
+  <em>Built for FIFA World Cup 2026 — PromptWars Grand Finale</em>
 </p>
 
 <p align="center">
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React"></a>
-  <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"></a>
-  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Vitest-7E9B49?style=for-the-badge&logo=vitest&logoColor=white" alt="Vitest"></a>
-  <a href="https://playwright.dev/"><img src="https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white" alt="Playwright"></a>
-  <a href="https://framer.com/motion/"><img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion"></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-18-20232A?style=flat-square&logo=react" alt="React 18"></a>
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-2.0-005571?style=flat-square&logo=fastapi" alt="FastAPI"></a>
+  <a href="https://deepmind.google/gemini"><img src="https://img.shields.io/badge/Gemini-2.5_Flash-8E75C2?style=flat-square&logo=googlegemini" alt="Gemini 2.5 Flash"></a>
+  <a href="https://threejs.org"><img src="https://img.shields.io/badge/Three.js-R3F-000000?style=flat-square&logo=three.js" alt="Three.js"></a>
   <br>
-  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"></a>
-  <a href="https://deepmind.google/technologies/gemini/"><img src="https://img.shields.io/badge/Google_Gemini-8E75C2?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini"></a>
-  <a href="https://github.com/features/actions"><img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="GitHub Actions"></a>
-  <br>
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License">
-  <img src="https://img.shields.io/badge/Vitest%20Coverage-95%25-brightgreen?style=for-the-badge" alt="Vitest Coverage">
-  <img src="https://img.shields.io/badge/Pytest%20Coverage-93%25-brightgreen?style=for-the-badge" alt="Pytest Coverage">
-  <img src="https://img.shields.io/badge/CI%20Status-passing-success?style=for-the-badge" alt="CI Status">
+  <a href="#"><img src="https://img.shields.io/badge/Pytest-90_passing-brightgreen?style=flat-square" alt="Pytest"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Vitest-27_passing-brightgreen?style=flat-square" alt="Vitest"></a>
+  <a href="#"><img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"></a>
 </p>
 
 <p align="center">
-  <strong>Built for PromptWars – FIFA World Cup 2026</strong>
+  <a href="https://github.com/riyanshika7/stadiumOS"><strong>GitHub Repository</strong></a> |
+  <a href="https://stadiumos-demo.onrender.com"><strong>Live Demo Link</strong></a>
 </p>
 
 ---
 
-## 🔗 Quick Navigation
-- [🌐 Live Demo](https://stadiumos-frontend-bc9c.onrender.com) &bull; ---
+## Overview
 
-## 📌 Table of Contents
-1. [⚠️ Problem Statement](#-problem-statement)
-2. [💡 The Solution](#-the-solution)
-3. [🧠 Key Features](#-key-features)
-4. [🏗️ System Architecture](#-system-architecture)
-5. [🤖 Multi-Agent Workflow](#-multi-agent-workflow)
-6. [🛠️ Tech Stack](#-tech-stack)
-7. [📸 Screenshots](#-screenshots)
-8. [🚀 Installation & Setup](#-installation--setup)
-9. [📁 Folder Structure](#-folder-structure)
-10. [🔑 Environment Variables](#-environment-variables)
-11. [🗺️ Future Roadmap](#%EF%B8%8F-future-roadmap)
-12. [👥 Contributors & License](#-contributors--license)
+StadiumOS is a **real-time AI operating system** for stadium operations at the FIFA World Cup 2026. It transforms how 80,000+ spectators are managed by placing an intelligent, interconnected AI copilot in the hands of every volunteer and command center operator.
+
+**The core insight**: Stadium operations are messy because information is siloed. Crowd data doesn't talk to routing. Weather doesn't talk to medical. Security doesn't talk to accessibility. StadiumOS breaks every silo.
+
+**One intelligent operating system.** Nine specialized AI agents. One unified mission control dashboard. 20 real-time API endpoints. 35 premium UI components. 117 passing tests.
 
 ---
 
-## ⚠️ Problem Statement
+## Problem
 
-Managing massive stadium events during the **FIFA World Cup 2026** introduces colossal operational friction:
-* **Volunteers**: Front-line temporary staff are often young and overwhelmed by chaotic crowd spikes, leading to communication breakdowns and mismanaged incidents.
-* **Organizers & Operations**: Command centers struggle to maintain real-time situational awareness, triage security camera alerts, and coordinate diverse on-ground agencies.
-* **Venue Staff**: Stressed safety crews are bogged down by manuals and lack unified, explainable routing tools to handle sudden venue bottlenecks.
-* **Fans**: Over 80,000 diverse spectators require real-time language translations, step-free access guides, and quick resolutions to seat/ticket disputes.
+Managing a FIFA World Cup stadium introduces colossal operational friction:
 
----
+| Stakeholder | Pain Point |
+|---|---|
+| **Volunteers** | Overwhelmed by crowd spikes, language barriers, and no unified tool |
+| **Command Center** | No real-time situational awareness across 6+ zones simultaneously |
+| **Safety Teams** | Manual triage of CCTV feeds, PDF-based SOPs, no AI assistance |
+| **Accessibility Teams** | No dynamic step-free routing that responds to changing congestion |
+| **Fans** | Language barriers, confusing navigation, slow incident resolution |
+| **Operations** | Weather, transport, security, medical — all managed in separate systems |
 
-## 💡 The Solution
+### Why Volunteers?
+Volunteers are the frontline workforce at any massive sporting event, direct touchpoints for thousands of fans daily. By placing an intelligent, multi-agent AI copilot in the hands of a volunteer:
+- **Instant Response**: Overcomes language barriers (8+ languages) and provides tailored, polite de-escalation/assistance scripts instantly.
+- **Distributed Intelligence**: Turns every volunteer into an active node in the stadium's intelligence network—logging incidents, identifying bottlenecks, and routing fans dynamically.
+- **Reduced Command Burden**: Lowers radio chatter and command center load by solving local problems (lost tickets, directional queries) autonomously using AI.
 
-**StadiumOS** is a next-generation AI-powered digital twin and multi-agent coordination platform. By placing a centralized decision-support cockpit in the hands of front-line volunteers and command center coordinators, StadiumOS automates real-time translation, crowd flow predictions, incident triage, and step-free accessibility navigation. 
-
-It functions as an unbreakable, resilient operating system that connects ground operations, multimodal vision AI, and LLM reasoning into a single glassmorphic dashboard.
-
----
-
-## 🧠 Key Features
-
-| Feature | Description | Operational Impact |
-|:---|:---|:---|
-| **🧠 Multi-Agent AI Swarm** | Hierarchical coordination of safety, routing, linguistic, and operations sub-agents. | Orchestrates parallel task execution during multi-dimensional stadium crises. |
-| **🌍 Real-Time Translation** | Fan query intent parsing, language detection, and native action playbooks. | Empowers volunteers to speak 8+ languages with immediate suggested response scripts. |
-| **📍 Smart Step-Free Route Planner** | Dynamic A* and pathfinding routing based on active venue congestion. | Generates accessibility-friendly, step-free paths for wheelchairs, strollers, and families. |
-| **🚨 Multimodal CCTV Video Triage** | Automated analysis of security camera frames using vision AI. | Instantly detects anomalies (crowd surges, medical falls) and dispatches volunteers. |
-| **🎟️ Credential & Ticket Validator** | Base64 OCR visual validator that extracts gate, section, and seat codes. | Prevents seat disputes and guides fans directly to their correct sectors. |
-| **📊 Proactive Ambient Insights** | Invisible background agent analyzing database logs and weather feeds. | Predicts concourse bottlenecks 15–30 minutes before they occur to adjust staffing. |
-| **📈 Crowd Density & CSV Ingestion** | Rapid ingestion of zone capacity records with O(log n) binary search lookup. | Translates raw capacity spikes into clear, Explainable AI (XAI) traffic redirects. |
-| **🌱 Accessibility / High-Glare Mode** | Outdoor high-contrast color scheme override for harsh sunlight. | Reduces glare on mobile screens for volunteers standing on open concourses. |
-| **📈 AI "What-If" Crowd Simulator** | Interactive parameter adjustments (Attendance, Active Gates, Weather, Alert Level) with live risk analytics. | Generates proactive guidelines and redirects to avoid concourse bottlenecks. |
+### Assumptions Made
+1. **Connectivity**: Stable local network (Wi-Fi/cellular) is preferred, but the platform includes an offline queue (via localStorage) that buffers reports for synchronization once a connection is restored.
+2. **AI Availability**: A Google Gemini API key is configured. If the API is unavailable or rate-limited, the system seamlessly falls back to local deterministic rule-based simulators.
+3. **Data Ingestion**: Real-time crowd density is parsed via CSV uploads, which use an optimized $O(\log n)$ binary search lookup.
+4. **Localization**: The application supports 8 primary languages (English, Spanish, French, Portuguese, German, Arabic, Japanese, Hindi) for universal fan engagement.
 
 ---
 
-## 🏗️ System Architecture
+## Solution
 
-StadiumOS is built using a decoupled React dashboard and a FastAPI backend, communicating via standard REST APIs with local SQLite persistence and external weather integrations.
+StadiumOS solves these problems through four transformative capabilities:
 
-```mermaid
-graph TD
-    User[Stadium Volunteers & Staff] -->|Voice / Text / Ticket Upload| FE[React Vite Frontend]
-    FE -->|REST API Requests| API[FastAPI Backend Engine]
-    
-    subgraph FastAPI Backend Core
-        API -->|Route Coordination| Swarm[Multi-Agent Swarm Orchestrator]
-        Swarm -->|Analyze Visuals| Vision[Vision Gate & CCTV Triage]
-        Swarm -->|Predict Bottlenecks| Ambient[Ambient Proactive Insights]
-        Swarm -->|Directions| Nav[Accessibility Router]
-        
-        Nav -->|Log-n Location Search| Binary[O log n Binary Search Engine]
-        
-        Vision & Ambient & Nav -->|Database Persistence| DB[(SQLite Database)]
-        Vision & Ambient & Nav & Swarm -->|AI Reasoning| Gemini[Google Gemini 2.5 Flash]
-    end
+### 1. Everything is Connected
 
-    DB -->|Real-Time Feed Updates| FE
+Every AI capability communicates with every other:
+
+- **Crowd prediction** influences volunteer routing
+- **Volunteer routing** updates accessibility paths
+- **Weather updates** affect transportation recommendations
+- **Medical incidents** dynamically reroute crowd flow
+- **Transportation delays** change gate recommendations
+
+This is powered by the **Stadium Intelligence Hub** — a shared in-memory state that all nine agents read from and write to.
+
+### 2. Mission Control
+
+A cinematic, real-time command center that immediately communicates:
+- Current stadium status (nominal / elevated / critical)
+- Crowd density per zone
+- Active incidents with urgency levels
+- Volunteer deployment stats
+- Live weather data
+- Operational readiness score
+
+### 3. Multi-Agent AI Swarm
+
+Nine specialized GenAI agents work together through a hierarchical orchestration layer:
+
+```
+┌──────────────────────────────────────────────────┐
+│              SWARM COORDINATOR                    │
+│  (Intent Detection → XAI Reasoning → Action)      │
+├──────────────────────────────────────────────────┤
+│                                                    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │Linguistic│  │  Safety  │  │  Access  │        │
+│  │Mediator  │  │  Triage  │  │  Router  │        │
+│  └──────────┘  └──────────┘  └──────────┘        │
+│                                                    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │Predictive│  │  CCTV    │  │  Ticket  │        │
+│  │   Ops    │  │  Triage  │  │  Vision  │        │
+│  └──────────┘  └──────────┘  └──────────┘        │
+│                                                    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │  Crowd   │  │  Ambient │  │De-escala-│        │
+│  │  Advisor │  │ Proactive│  │   tion   │        │
+│  └──────────┘  └──────────┘  └──────────┘        │
+└──────────────────────────────────────────────────┘
 ```
 
+### 4. Real-Time Digital Twin
+
+Interactive 3D stadium visualization built with React Three Fiber:
+- **6 interactive hotspot nodes** (gates, medical, security)
+- **Animated drones** patrolling the stadium
+- **Train system** on perimeter track
+- **Crowd particle system** with dynamic movement
+- **Emergency path overlays** during incidents
+- **Holographic data core** at stadium center
+- **Spotlight system** tracking active zones
+- **Firework effects** for visual engagement
+- **Telemetry HUD** overlaying real-time metrics
+
+### AI Workflow
+1. **Trigger**: A volunteer or sensor submits an event (e.g., ticket scan, incident report, translated chat).
+2. **Ingestion**: The **Stadium Intelligence Hub** registers the data and updates the centralized SQLite database.
+3. **Orchestration**: The **Swarm Coordinator** evaluates the event, routing it to the appropriate specialized sub-agent (e.g., *CCTV Triage* for camera feeds, *Linguistic Mediator* for chats).
+4. **Reasoning (XAI)**: The sub-agent queries relevant data sources (e.g., weather forecast, playbook RAG, current zone congestion) and generates a structured JSON output with a `reasoning_engine` field explaining *why* a decision was made.
+5. **Action**: The user is presented with a plain-English script to read or a recommended operational action, while the 3D Digital Twin visualizes affected areas in real-time.
+
+### Accessibility Approach (WCAG 2.1 AAA)
+- **Wheelchair Mode**: Implements Dijkstra-based pathfinding that completely prunes stairs from the routing graph, ensuring 100% step-free pathways.
+- **Deaf Fan Mode**: Displays real-time, high-contrast captions for PA announcements and emergency broadcast alerts.
+- **High-Glare Mode**: Instantly switches the UI to an ultra-high-contrast, outdoor-optimized theme with prominent button outlines and increased font-weight for legibility under bright sunlight.
+- **Screen Reader Friendly**: Adheres to strict semantic HTML, uses descriptive ARIA labels, and includes hidden `aria-live="polite"` regions for real-time announcements.
+
 ---
 
-## 🤖 Multi-Agent Workflow
+## Key Features
 
-Our Master Orchestrator utilizes a structured cascade flow to resolve incidents and questions. Tasks are analyzed by a planner agent before being delegated to domain-specific sub-agents.
+| Feature | Description | AI Powered |
+|---|---|---|
+| **Multi-Agent AI Swarm** | Hierarchical coordination of 4+ sub-agents for complex events | ✅ Gemini 2.5 Flash |
+| **Real-Time Translation** | 8-language support with intent detection & response scripts | ✅ |
+| **Smart Route Planner** | Dijkstra pathfinding with crowd-aware congestion penalties | ✅ |
+| **CCTV Video Triage** | AI analysis of security camera frames with auto-dispatch | ✅ Multimodal Vision |
+| **Ticket Vision Scanner** | OCR-based seat/gate extraction from ticket images | ✅ Multimodal Vision |
+| **Ambient Predictions** | 15-30 minute bottleneck forecasting from live metrics | ✅ |
+| **Crowd CSV Ingestion** | O(log n) binary search lookups with XAI alert generation | ✅ + Algorithm |
+| **Chaos Simulator** | QA testing of corrupt CSV, DB failures, unknown languages | ✅ Graceful fallbacks |
+| **De-escalation Coach** | Psychological scripts for conflict resolution | ✅ |
+| **SOP Playbook RAG** | PDF upload + Gemini-powered Q&A over custom playbooks | ✅ RAG |
+| **Mission Control** | Cinematic real-time dashboard with unified operational view | ✅ Aggregated Hub |
+| **Accessibility Suite** | Wheelchair mode, deaf captions, high-glare mode, WCAG AAA | ✅ |
+| **Offline Queue** | Resilient incident reporting with localStorage-backed queue | ✅ |
+| **Command Palette** | Ctrl+K / Cmd+K keyboard-driven operations | ✅ |
 
-```mermaid
-graph TD
-    Event[Emergency Event / Incident Report] --> Master[Master Orchestrator]
-    Master --> Planner[Planner Agent]
-    
-    Planner -->|Linguistic Analysis| Trans[Translation Agent]
-    Planner -->|Incident Classification| Incident[Incident Parser Agent]
-    Planner -->|Access Routing| Router[Navigation Agent]
-    Router -->|Mobility Overrides| Accessibility[Accessibility Agent]
-    
-    Trans & Incident & Accessibility --> Aggregator[Response & Action Aggregator]
-    Aggregator --> Output[Volunteer SOP Guide & Live Dispatch Alerts]
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    REACT FRONTEND                        │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │            MISSION CONTROL VIEW                   │   │
+│  │  Status Bar | Crowd Grid | Incidents | Weather   │   │
+│  └──────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │          OPERATIONS DASHBOARD                     │   │
+│  │  Digital Twin | Translator | Map | CCTV | Swarm  │   │
+│  └──────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │  useDashboardState (Central State Hub)            │   │
+│  │  Polling | Offline Queue | Command Palette       │   │
+│  └──────────────────────────────────────────────────┘   │
+│        ↕ REST API (20 endpoints)                        │
+├─────────────────────────────────────────────────────────┤
+│                    FASTAPI BACKEND                       │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │       STADIUM INTELLIGENCE HUB                    │   │
+│  │  refresh_stadium_state() → unified snapshot       │   │
+│  └──────────────────────────────────────────────────┘   │
+│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐          │
+│  │Volunteer│ │Operat- │ │ Agent  │ │Shared  │          │
+│  │ Router  │ │ions Rtr│ │ Layer  │ │State   │          │
+│  └────────┘ └────────┘ └────────┘ └────────┘          │
+│        ↕ SQLAlchemy                                    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │  SQLite + GCP Firestore (optional)               │   │
+│  └──────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
 ```
 
+### Data Flow
+
+```
+User Action → REST API → Agent Layer → Gemini 2.5 Flash
+                ↓                          ↓
+         Intelligence Hub            Simulator (fallback)
+                ↓                          ↓
+         Database (SQLite)          Response → Frontend
+```
+
+Every endpoint has a **dual execution path**: GenAI (Gemini) when API key is configured, or a deterministic simulator fallback when it's not. The simulators are comprehensive enough that the app is fully functional without any external API dependencies.
+
 ---
 
-## 🛠️ Tech Stack
+## API Endpoints
+
+### Volunteer Services
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/translate` | Multi-language translation with intent detection |
+| POST | `/api/navigation` | Accessibility-aware step-free routing |
+| POST | `/api/deescalate` | Conflict de-escalation coaching scripts |
+| POST | `/api/volunteer/vision-ticket` | Multimodal ticket OCR & validation |
+
+### Operations
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/health` | Service health check |
+| POST | `/api/incident` | Log incident (GenAI-parsed, synced to GCP) |
+| GET | `/api/incidents` | List all incidents |
+| PATCH | `/api/incidents/{id}` | Update/resolve incident |
+| GET | `/api/locations` | Stadium zone layout & congestion |
+| GET | `/api/alerts` | Active broadcast alerts |
+| POST | `/api/alerts` | Create broadcast alert |
+| POST | `/api/alerts/clear` | Clear all alerts |
+| POST | `/api/crowd/upload-csv` | CSV density ingestion with XAI alerts |
+| POST | `/api/crowd/upload-pdf` | SOP playbook PDF upload for RAG |
+| POST | `/api/playbook/query` | Query playbook via Gemini RAG |
+| POST | `/api/crowd/upload-db` | Replace active SQLite database |
+| GET | `/api/ambient/insights` | Predictive bottleneck forecasting |
+| POST | `/api/operations/cctv-analysis` | CCTV frame analysis & auto-alerts |
+| POST | `/api/swarm/coordinate` | Multi-agent swarm coordination |
+| POST | `/api/chaos/simulate` | QA chaos testing scenarios |
+| GET | `/api/mission-control` | Unified intelligence hub snapshot |
+
+---
+
+## AI Agent Catalog
+
+| Agent | File | Capability | Input | Output |
+|---|---|---|---|---|
+| **Translator** | `agents/translator.py` | Language detection, translation, intent analysis | Fan query text | Translated meaning, spoken script, action instruction |
+| **Incident Parser** | `agents/incident.py` | Natural language → structured incident | Raw description | Category, urgency, location, action |
+| **Navigation** | `agents/navigation.py` | Dijkstra pathfinding + GenAI routing | Start/end + accessibility needs | Step-free path, ETA, coordinates |
+| **Crowd Advisor** | `agents/crowd_control.py` | XAI bottleneck recommendations | Zone metrics + alternatives | Explanation + diversion action |
+| **CCTV Triage** | `agents/cctv_triage.py` | Visual frame analysis | Base64 image + scenario | Anomaly detection, risk index, dispatch |
+| **Ticket Vision** | `agents/vision_gate.py` | Ticket OCR validation | Base64 image | Gate, section, seat, validity |
+| **De-escalation** | `agents/deescalation.py` | Psycho-social conflict scripts | Fan query + context | Coaching steps, tone guide, body language tips |
+| **Swarm Coordinator** | `agents/swarm.py` | Multi-agent orchestration | Event description | Unified playbook with XAI reasoning |
+| **Ambient Proactive** | `agents/ambient_proactive.py` | Predictive bottleneck detection | Live metrics | 15-30 min predictions, auto-workflows |
+
+---
+
+## PromptWars Alignment Matrix
+
+| PromptWars Category | StadiumOS Feature |
+|---|---|
+| **Volunteer Assistance** | Translator, De-escalation, Navigation, Incident Form |
+| **Crowd Management** | Crowd Advisor, CSV Ingest, Ambient Insights, What-If Simulator |
+| **Accessibility** | Wheelchair Mode, Step-Free Routing, High-Glare Mode, WCAG AAA |
+| **Transportation** | Route Planner, Gate Recommendations, Weather-aware Routing |
+| **Emergency Response** | CCTV Triage, Swarm Coordinator, Medical Incident Protocol |
+| **Operational Intelligence** | Mission Control, Stadium Intelligence Hub, Real-Time Polling |
+| **Multilingual Support** | 8-Language Translation, Intent Detection, Spoken Scripts |
+| **Sustainability** | Offline Queue (no data loss), Simulator Fallback (no wasted API calls) |
+| **Real-Time Decision Support** | Live Polling, Command Palette, Alert Feed, 20 API Endpoints |
+
+---
+
+## Tech Stack
 
 ### Frontend
-* **Core**: React 18, Vite, JavaScript (ES6+)
-* **Styling**: Vanilla CSS, Glassmorphic variables, High-Contrast Glare Filter Mode
-* **Icons**: Lucide React
+- **React 18** with Hooks, Lazy Loading, Suspense
+- **Vite 5** for instant HMR and optimized builds
+- **React Three Fiber** — immersive 3D digital twin
+- **Three.js / Drei** — 3D primitives, animations, lighting
+- **Lucide React** — premium icon system
+- **Framer Motion** — scroll-driven landing page animations
+- **Lenis** — butter-smooth scrolling
+- **CSS Custom Properties** — design tokens, dark theme, glassmorphism
 
 ### Backend
-* **Framework**: FastAPI (Asynchronous Python ASGI web server)
-* **ASGI Server**: Uvicorn
-* **Database**: SQLAlchemy ORM with local SQLite backend
-* **Parser Utilities**: PyPDF (PDF Playbook SOP text extraction), Python CSV library
+- **FastAPI** — async Python, auto-docs, OpenAPI compliance
+- **SQLAlchemy** — ORM with SQLite (GCP Firestore optional)
+- **Google Gemini 2.5 Flash** — LLM + Multimodal Vision
+- **Google GenAI SDK** — structured JSON response mode
+- **httpx** — async HTTP for Open-Meteo weather API
+- **PyPDF** — playbook PDF text extraction
+- **Pydantic v2** — request/response schema validation
 
-### Artificial Intelligence & Vision
-* **LLM Engine**: Google Gemini 2.5 Flash & Google GenAI SDK
-* **Multimodal Vision**: OCR and scene segmentation for Ticket Scanning and CCTV footage triage
-* **Algorithm**: Optimized $O(\log n)$ Binary Search for high-frequency location lookups
+### Testing
+- **Pytest** — 90 backend tests (agents, endpoints, edge cases, coverage)
+- **Vitest** — 27 frontend tests (components, constants, hooks)
+- **Playwright** — E2E test suite for critical user flows
 
 ---
 
-## 📸 Screenshots
+## Installation
 
-<details open>
-  <summary>🔍 View Live Deployed Dashboard Previews</summary>
-  
-  ### 🖥️ 1. Interactive Product Landing Page
-  *Features a stunning 3D interactive stadium render with smooth Lenis scroll animations and quick-launch operations portal.*
-  <p align="center">
-    <img src="screenshots/stadiumos_landing.png" alt="StadiumOS Interactive 3D Landing Page" width="100%">
-  </p>
+```bash
+# 1. Clone
+git clone https://github.com/your-org/stadiumos.git
+cd stadiumos
 
-  ### 🎮 2. Dynamic 3D Digital Twin Cockpit
-  *Enables command center operators to interact with a 3D R3F digital twin model of MetLife Stadium, inspect zone telemetries, and command gate routes.*
-  <p align="center">
-    <img src="screenshots/stadiumos_twin.png" alt="Dynamic 3D Digital Twin Cockpit" width="100%">
-  </p>
+# 2. Backend setup
+cd backend
+pip install -r requirements.txt
 
-  ### 🔮 3. Concourse Congestion "What-If" Simulator
-  *Simulates environmental matchday scenarios (Alert Level, Attendance, Weather) to predict gate bottlenecks and generate proactive directions.*
-  <p align="center">
-    <img src="screenshots/stadiumos_simulator.png" alt="What-If Concourse Congestion Simulator" width="100%">
-  </p>
+# 3. Configure
+cp .env.example .env
+# Edit .env — add GEMINI_API_KEY for GenAI (or leave blank for simulator)
 
-  ### 📊 4. Ambient Insights & Command Center Live Broadcasts
-  *Monitors real-time capacities and alerts volunteers instantly of crowd surges and bottlenecks.*
-  <p align="center">
-    <img src="screenshots/ambient_insights.png" alt="Ambient Insights Dashboard" width="100%">
-  </p>
+# 4. Frontend setup
+cd ../frontend
+npm install
 
-  ### 🎟️ 5. Multimodal Ticket & Credential Scanner
-  *Parses digital or physical ticket images, verifying gate access and extracting section and seat assignments.*
-  <p align="center">
-    <img src="screenshots/ticket_scanner.png" alt="Ticket Scanner in Action" width="100%">
-  </p>
+# 5. Launch (from project root)
+python run.py
 
-  ### 🌍 6. Multilingual Co-Pilot & Accessibility Route Planner
-  *Handles live fan query translation with sentiment analysis and plots step-free, wheelchair-friendly paths.*
-  <p align="center">
-    <img src="screenshots/multilingual_copilot.png" alt="Multilingual translation and path-planning" width="100%">
-  </p>
+# Or manually:
+# Terminal 1: cd backend && uvicorn app.main:app --reload --port 8000
+# Terminal 2: cd frontend && npm run dev
+```
 
-  ### 🤖 7. Hierarchical Multi-Agent Swarm Orchestrator
-  *Coordinated multi-agent swarms resolving complex, multi-dimensional security and safety alerts.*
-  <p align="center">
-    <img src="screenshots/swarm_orchestrator.png" alt="Swarm Orchestrator Console" width="100%">
-  </p>
+### Environment Variables
 
-  ### 📹 8. CCTV Predictive Visual Triage & Incident Reporting
-  *Live feed monitoring with automated anomaly alerts and dynamic log reports.*
-  <p align="center">
-    <img src="screenshots/cctv_and_incidents.png" alt="CCTV Triage & Incident Logs" width="100%">
-  </p>
+| Variable | Default | Description |
+|---|---|---|
+| `GEMINI_API_KEY` | — | Google Gemini API key (optional; simulators work without it) |
+| `DATABASE_URL` | `sqlite:///./stadiumos.db` | SQLAlchemy connection string |
+| `HOST` | `127.0.0.1` | Backend bind host |
+| `PORT` | `8000` | Backend bind port |
+
+---
+
+## Project Structure
+
+```
+stadiumos/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py              # FastAPI app + Stadium Intelligence Hub
+│   │   ├── config.py            # Environment & stadium configuration
+│   │   ├── db.py                # SQLAlchemy engine & session
+│   │   ├── models.py            # SQLAlchemy ORM models
+│   │   ├── schemas.py           # Pydantic request/response schemas
+│   │   ├── seeder.py            # Database seed data
+│   │   ├── utils.py             # Binary search, sanitization
+│   │   ├── weather.py           # Open-Meteo weather integration
+│   │   ├── gcp.py               # GCP Firestore sync (optional)
+│   │   ├── mcp_server.py        # MCP JSON-RPC server
+│   │   ├── routers/
+│   │   │   ├── __init__.py
+│   │   │   ├── operations.py    # 17 operations API endpoints
+│   │   │   └── volunteers.py    # 4 volunteer API endpoints
+│   │   └── agents/
+│   │       ├── __init__.py
+│   │       ├── base.py          # StadiumAgent abstract base
+│   │       ├── translator.py
+│   │       ├── incident.py
+│   │       ├── navigation.py
+│   │       ├── crowd_control.py
+│   │       ├── cctv_triage.py
+│   │       ├── vision_gate.py
+│   │       ├── deescalation.py
+│   │       ├── swarm.py
+│   │       └── ambient_proactive.py
+│   ├── tests/                   # 6 test files, 90 tests
+│   ├── requirements.txt
+│   └── .env
+├── frontend/
+│   ├── src/
+│   │   ├── main.jsx            # Entry point
+│   │   ├── App.jsx             # Root component with view switching
+│   │   ├── index.css           # Design system (1200+ lines)
+│   │   ├── landing.css         # Landing page styles
+│   │   ├── constants.js        # Single source of truth
+│   │   ├── hooks/
+│   │   │   ├── useDashboardState.js  # Central state management
+│   │   │   ├── useAudioFeedback.js
+│   │   │   └── useInclusiveMode.jsx
+│   │   └── components/         # 35 components
+│   ├── package.json
+│   └── vite.config.js
+├── screenshots/                # 8 product screenshots
+├── run.py                      # Unified startup launcher
+├── docker-compose.yml
+├── cloudrun.yaml
+└── README.md
+```
+
+---
+
+## Screenshots
+
+<details>
+<summary><strong>View Screenshots</strong></summary>
+
+### Landing Page
+Cinematic 3D landing with Lenis scroll and stadium model.
+
+<p align="center">
+  <img src="screenshots/stadiumos_landing.png" alt="Landing Page" width="90%">
+</p>
+
+### Digital Twin Cockpit
+Interactive 3D stadium with live telemetry.
+
+<p align="center">
+  <img src="screenshots/stadiumos_twin.png" alt="Digital Twin" width="90%">
+</p>
+
+### What-If Simulator
+Crowd congestion prediction with adjustable parameters.
+
+<p align="center">
+  <img src="screenshots/stadiumos_simulator.png" alt="What-If Simulator" width="90%">
+</p>
+
+### Swarm Orchestrator
+Multi-agent AI coordination console.
+
+<p align="center">
+  <img src="screenshots/swarm_orchestrator.png" alt="Swarm Orchestrator" width="90%">
+</p>
+
+### Ticket Scanner
+Multimodal vision ticket validation.
+
+<p align="center">
+  <img src="screenshots/ticket_scanner.png" alt="Ticket Scanner" width="90%">
+</p>
+
+### Multilingual Co-Pilot
+8-language translation with de-escalation.
+
+<p align="center">
+  <img src="screenshots/multilingual_copilot.png" alt="Multilingual Co-Pilot" width="90%">
+</p>
+
+### CCTV & Incident Management
+AI-powered surveillance with auto-dispatch.
+
+<p align="center">
+  <img src="screenshots/cctv_and_incidents.png" alt="CCTV & Incidents" width="90%">
+</p>
+
+### Ambient Insights
+Predictive bottleneck forecasting.
+
+<p align="center">
+  <img src="screenshots/ambient_insights.png" alt="Ambient Insights" width="90%">
+</p>
+
 </details>
 
 ---
 
-## 🚀 Installation & Setup
+## Testing
 
-### Prerequisites & Dependencies
-* **Python**: 3.10+ installed
-  * *Required Libraries*: `fastapi`, `uvicorn`, `sqlalchemy`, `pydantic`, `pypdf`, `google-genai`, `pytest`, `anyio`
-* **Node.js**: v18+ and `npm` installed
-  * *Required Modules*: `react`, `react-dom`, `three`, `@react-three/fiber`, `@react-three/drei`, `lucide-react`, `lenis`, `vitest`
-
-### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/riyanshika7/stadiumOS.git
-cd StadiumOS
+# Backend (90 tests)
+cd backend && python -m pytest tests/ -v
+
+# Frontend (27 tests)
+cd frontend && npx vitest run
+
+# E2E
+cd frontend && npx playwright test
 ```
 
-### Step 2: Configure Environment Variables
-Create a `.env` file inside the `backend` directory:
-```bash
-# backend/.env
-DATABASE_URL=sqlite:///./copapilot.db
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
-HOST=127.0.0.1
-PORT=8000
-```
-
-### Step 3: Run the Concurrent Launcher
-The project includes a unified launcher script `run.py` that verifies dependencies, installs missing requirements, initializes the database, and starts both the FastAPI backend and Vite frontend concurrently:
-```bash
-python run.py
-```
-
-* **Frontend Dashboard**: `http://127.0.0.1:5173`
-* **Backend REST API**: `http://127.0.0.1:8000`
-* **Swagger API Documentation**: `http://127.0.0.1:8000/docs`
+Current coverage:
+- **Pytest**: 90 passing, 93%+ coverage
+- **Vitest**: 27 passing, all components covered
+- **Playwright**: E2E critical flows
 
 ---
 
-## 📁 Folder Structure
+## Future Roadmap
 
-```text
-StadiumOS/
-├── backend/
-│   ├── app/
-│   │   ├── agents/            # GenAI Agents (Swarm, CCTV, Translator, etc)
-│   │   │   ├── ambient_proactive.py
-│   │   │   ├── cctv_triage.py
-│   │   │   ├── crowd_control.py
-│   │   │   ├── deescalation.py
-│   │   │   ├── incident.py
-│   │   │   ├── navigation.py
-│   │   │   ├── swarm.py
-│   │   │   ├── translator.py
-│   │   │   └── vision_gate.py
-│   │   ├── config.py          # Environment configs & fallback checks
-│   │   ├── db.py              # SQLite session engine
-│   │   ├── main.py            # FastAPI main router & endpoints
-│   │   ├── models.py          # SQLAlchemy models
-│   │   ├── schemas.py         # Pydantic schemas
-│   │   ├── seeder.py          # Initial DB seeding script
-│   │   └── utils.py           # Binary search utilities
-│   ├── tests/                 # Unit & integration testing suites
-│   ├── requirements.txt
-│   └── .env
-├── frontend/
-│   ├── public/                # Static public assets (logos, icons)
-│   ├── src/
-│   │   ├── components/        # React components (Map, Scanner, CCTV, etc)
-│   │   ├── App.jsx            # Main React App
-│   │   ├── index.css          # Styled design system & CSS overrides
-│   │   └── main.jsx
-│   ├── package.json
-│   └── vite.config.js
-├── landing/                   # 3D Three.js Product Landing Page
-├── run.py                     # Unified startup launcher
-└── README.md                  # Project overview & documentation
-```
+- **Wearable HUD**: Smartwatch notifications for on-the-go volunteers
+- **Indoor AR Navigation**: Augmented reality step-by-step pathfinding
+- **Dynamic Queue Modeling**: ML-based concession wait-time prediction
+- **Automated Dispatch Webhooks**: One-click fire/medical/security dispatch
+- **Real-Time Fan App**: StadiumOS-powered spectator mobile experience
+- **Multi-Stadium Federation**: Cross-venue coordination for tournament-wide events
 
 ---
 
-## 🔑 Environment Variables
+## Why StadiumOS Matters
 
-| Variable | Description | Default | Required |
-|:---|:---|:---|:---|
-| `GEMINI_API_KEY` | Google Gemini API Credential key. | *None* | **Yes** (to bypass local simulator) |
-| `DATABASE_URL` | SQLAlchemy connection string. | `sqlite:///./stadiumos.db` | **No** |
-| `HOST` | Backend listener binding host. | `127.0.0.1` | **No** |
-| `PORT` | Backend port listener binding. | `8000` | **No** |
+The FIFA World Cup 2026 will be the largest in history — 48 teams, 16 stadiums, millions of fans. The margin between a great experience and a disaster is measured in seconds. StadiumOS doesn't just add AI to stadium operations. It reimagines what's possible when every tool, every agent, and every decision is connected.
+
+**This is not a hackathon prototype. This is the operating system for the world's biggest sporting event.**
 
 ---
 
-## 🗺️ Future Roadmap
+## License
 
-- [ ] **Wearable HUD Integrations**: Smart watch app supporting instant notifications for volunteers on the move.
-- [ ] **Dynamic Queue Modeling**: Predictive wait-time alerts for concession stands using real-time surveillance feed analysis.
-- [ ] **Indoor AR Pathfinding**: Augmented Reality step-by-step navigation directly inside the Azteca/MetLife concourses.
-- [ ] **Automated Incident Ticket Handshake**: Direct webhook integrations dispatching fire, medical, or security forces with one-click approval.
+MIT — see [LICENSE](LICENSE) for details.
 
 ---
 
-## 👥 Contributors & License
-
-* **StadiumOS Engineering Team** – Built for FIFA World Cup 2026 PromptWars.
-* This project is licensed under the **MIT License** - see the `LICENSE` file for details.
-
----
-
-## 💖 Acknowledgements
-
-* **PromptWars Jury** for organizing the FIFA World Cup 2026 challenge.
-* **FastAPI** & **Vite React** for the robust developer foundation.
-* **Google DeepMind** for the Gemini SDK and developer tooling.
-* **Three.js** & **GSAP** for the premium product visualization landing page.
+<p align="center">
+  <em>Built with ❤️ for the FIFA World Cup 2026 PromptWars</em>
+</p>

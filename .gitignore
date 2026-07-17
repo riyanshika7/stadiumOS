@@ -43,3 +43,15 @@ Thumbs.db
 desktop.ini
 .idea/
 .vscode/
+.venv/
+venv/
+ENV/
+env/
+frontend/test-results/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.db-journal
+*.db-shm
+*.db-wal

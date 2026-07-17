@@ -1,0 +1,37 @@
+# Google Cloud Run Service Configuration — StadiumOS Backend
+# Deploy with: gcloud run services replace cloudrun.yaml --region=us-central1
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: stadiumos-backend
+  labels:
+    cloud.googleapis.com/location: us-central1
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "10"
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      containerConcurrency: 80
+      containers:
+        - image: gcr.io/YOUR_GCP_PROJECT_ID/stadiumos-backend:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gemini-api-key
+                  key: latest
+            - name: FIREBASE_CREDENTIALS_PATH
+              value: /secrets/firebase_credentials.json
+            - name: DATABASE_URL
+              value: sqlite:///./stadiumos.db
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi

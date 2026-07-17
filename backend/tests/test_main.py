@@ -12,13 +12,17 @@ def test_root_endpoint():
     assert response.json()["status"] == "healthy"
 
 def test_translate_endpoint():
-    """Test the translation endpoint with Spanish query input."""
+    """Test the translation endpoint returns XAI-structured response for Spanish query."""
     payload = {"query": "¿Dónde puedo encontrar el ascensor?"}
     response = client.post("/api/translate", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert "detected_language" in data
-    assert data["detected_language"] == "Spanish"
+    # Verify XAI top-level structure
+    assert "intent_detection" in data
+    assert "reasoning" in data
+    assert "actionable_instruction" in data
+    # Verify nested intent_detection fields
+    assert data["intent_detection"]["detected_language"] == "Spanish"
     assert "suggested_reply_native" in data
 
 def test_incident_creation_and_listing():

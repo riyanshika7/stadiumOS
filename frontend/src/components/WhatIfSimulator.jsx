@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sliders, HelpCircle, AlertTriangle, CheckCircle, Activity, Sparkles } from 'lucide-react';
+import { Sliders, AlertTriangle, CheckCircle, Activity, Sparkles } from 'lucide-react';
 
 export default function WhatIfSimulator() {
   const [attendance, setAttendance] = useState(60000);
@@ -75,32 +75,21 @@ export default function WhatIfSimulator() {
   };
 
   return (
-    <div className="glass-card" style={{ 
-      border: '2px solid rgba(70, 243, 255, 0.4)', 
-      boxShadow: '0 0 25px rgba(70, 243, 255, 0.15)',
-      background: 'radial-gradient(ellipse at top left, rgba(70, 243, 255, 0.08), transparent 70%), var(--bg-card)',
-      padding: '1.25rem',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      <h3 className="card-title" style={{ color: '#46F3FF', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(70, 243, 255, 0.2)', paddingBottom: '0.5rem' }}>
+    <div className="glass-card simulator-card">
+      <h3 className="card-title simulator-title">
         <Sliders size={22} className="text-[#46F3FF] animate-pulse" />
         AI "WHAT-IF" CONCOURSE CONGESTION SIMULATOR
       </h3>
       
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+      <p className="simulator-desc">
         Simulate matchday environmental scenarios and security levels to predict potential gate congestion risks and generate explainable proactive directives.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
-        {/* Expected Attendance */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-main)', display: 'flex', justifyContent: 'space-between' }}>
+      <div className="simulator-controls-grid">
+        <div className="simulator-control-group">
+          <label className="simulator-control-label">
             <span>👥 Expected Attendance</span>
-            <span style={{ color: '#46F3FF' }}>{(attendance / 1000).toFixed(0)}k fans</span>
+            <span className="simulator-control-value">{(attendance / 1000).toFixed(0)}k fans</span>
           </label>
           <input 
             type="range" 
@@ -109,15 +98,14 @@ export default function WhatIfSimulator() {
             step="5000"
             value={attendance} 
             onChange={(e) => setAttendance(Number(e.target.value))} 
-            style={{ width: '100%', accentColor: '#46F3FF', cursor: 'pointer' }}
+            className="simulator-range-input"
           />
         </div>
 
-        {/* Active Ingress Gates */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-main)', display: 'flex', justifyContent: 'space-between' }}>
+        <div className="simulator-control-group">
+          <label className="simulator-control-label">
             <span>🏟️ Active Ingress Gates</span>
-            <span style={{ color: '#46F3FF' }}>{activeGates} / 4 gates</span>
+            <span className="simulator-control-value">{activeGates} / 4 gates</span>
           </label>
           <input 
             type="range" 
@@ -126,19 +114,18 @@ export default function WhatIfSimulator() {
             step="1"
             value={activeGates} 
             onChange={(e) => setActiveGates(Number(e.target.value))} 
-            style={{ width: '100%', accentColor: '#46F3FF', cursor: 'pointer' }}
+            className="simulator-range-input"
           />
         </div>
 
-        {/* Weather Conditions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-main)' }}>
+        <div className="simulator-control-group">
+          <label className="simulator-control-label">
             🌧️ Weather Conditions
           </label>
           <select 
             value={weather} 
             onChange={(e) => setWeather(e.target.value)}
-            style={{ background: 'rgba(5, 8, 22, 0.8)', border: '1px solid var(--border-color)', color: 'var(--text-main)', padding: '0.4rem', borderRadius: '4px', outline: 'none' }}
+            className="simulator-select"
           >
             <option value="sunny">Sunny / Optimal</option>
             <option value="rain">Heavy Rain / Slippery Ramps</option>
@@ -147,15 +134,14 @@ export default function WhatIfSimulator() {
           </select>
         </div>
 
-        {/* Security Alert Level */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-main)' }}>
+        <div className="simulator-control-group">
+          <label className="simulator-control-label">
             👮 Security Alert Level
           </label>
           <select 
             value={securityLevel} 
             onChange={(e) => setSecurityLevel(e.target.value)}
-            style={{ background: 'rgba(5, 8, 22, 0.8)', border: '1px solid var(--border-color)', color: 'var(--text-main)', padding: '0.4rem', borderRadius: '4px', outline: 'none' }}
+            className="simulator-select"
           >
             <option value="standard">Level 1 - Standard</option>
             <option value="elevated">Level 2 - Elevated</option>
@@ -167,65 +153,48 @@ export default function WhatIfSimulator() {
       <button 
         onClick={runSimulation}
         disabled={isSimulating}
-        className="btn btn-primary"
-        style={{ 
-          background: 'linear-gradient(135deg, #0070f3, #46F3FF)', 
-          border: 'none', 
-          padding: '0.65rem', 
-          fontWeight: 'bold', 
-          marginTop: '0.5rem',
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          gap: '0.5rem',
-          cursor: 'pointer',
-          borderRadius: '6px'
-        }}
+        className="btn simulator-run-btn"
       >
         <Sparkles size={16} />
         {isSimulating ? 'Computing Neural Predictors...' : 'Run Simulation Analysis'}
       </button>
 
-      {/* Simulation Result Area */}
       {simulationResult && (
-        <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem', borderTop: '1px solid rgba(70, 243, 255, 0.2)', paddingTop: '1rem' }}>
-          {/* Left gauge / metrics */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="fade-in simulator-results-grid">
+          <div className="simulator-metrics-col">
+            <div className="simulator-metric-header">
               <Activity size={16} style={{ color: simulationResult.riskColor }} />
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>Simulated Congestion Risk</span>
+              <span className="simulator-metric-label">Simulated Congestion Risk</span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span style={{ fontSize: '2rem', fontWeight: '900', color: simulationResult.riskColor }}>{simulationResult.riskLevel}</span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>(Score: {simulationResult.score}/100)</span>
+            <div className="simulator-risk-display">
+              <span className="simulator-risk-level" style={{ color: simulationResult.riskColor }}>{simulationResult.riskLevel}</span>
+              <span className="simulator-risk-score">(Score: {simulationResult.score}/100)</span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.8rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Estimated Entry Delay:</span>
-                <span style={{ fontWeight: 'bold', color: '#46F3FF' }}>{simulationResult.entryTime} mins</span>
+            <div className="simulator-metric-rows">
+              <div className="simulator-metric-row">
+                <span className="simulator-metric-key">Estimated Entry Delay:</span>
+                <span className="simulator-metric-val">{simulationResult.entryTime} mins</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>System SLA Status:</span>
+              <div className="simulator-metric-row">
+                <span className="simulator-metric-key">System SLA Status:</span>
                 <span style={{ fontWeight: 'bold', color: simulationResult.score > 75 ? 'var(--color-danger)' : 'var(--color-success)' }}>
                   {simulationResult.score > 75 ? 'BREACH RISK' : 'OPTIMAL'}
                 </span>
               </div>
             </div>
 
-            {/* Simple Animated Gauge Meter */}
-            <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden', position: 'relative' }}>
-              <div style={{ height: '100%', width: `${simulationResult.score}%`, background: simulationResult.riskColor, transition: 'width 0.5s ease-out' }}></div>
+            <div className="simulator-gauge">
+              <div className="simulator-gauge-fill" style={{ width: `${simulationResult.score}%`, background: simulationResult.riskColor }}></div>
             </div>
           </div>
 
-          {/* Right recommendations */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase' }}>proactive directives dispatch</span>
+          <div className="simulator-directives-col">
+            <span className="simulator-directives-label">proactive directives dispatch</span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
               {simulationResult.recommendations.map((rec, i) => (
-                <div key={i} style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.02)', borderLeft: `2px solid ${simulationResult.riskColor}`, padding: '0.4rem', borderRadius: '2px', color: 'var(--text-main)' }}>
+                <div key={i} className="simulator-directive-item" style={{ borderLeft: `2px solid ${simulationResult.riskColor}` }}>
                   {rec}
                 </div>
               ))}

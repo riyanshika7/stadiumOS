@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Brain, AlertTriangle, ShieldCheck, Cog } from 'lucide-react';
+import { Brain, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { API_BASE_URL, AMBIENT_POLL_INTERVAL_MS } from '../constants';
 
 // AmbientInsights receives locations/alerts/incidents for future use but
@@ -61,7 +61,7 @@ function AmbientInsights({ locations: _locations, alerts: _alerts, incidents: _i
             PREDICTED PROBLEMS (15-30M)
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {insights.predicted_problems.map((prob, idx) => (
+            {(insights.predicted_problems || []).map((prob, idx) => (
               <div key={idx} style={{ fontSize: '0.8rem', padding: '0.5rem', background: 'rgba(255, 199, 44, 0.03)', borderLeft: '2px solid var(--color-warning)', color: 'var(--text-main)', lineHeight: '1.3' }}>
                 {prob}
               </div>
@@ -76,7 +76,7 @@ function AmbientInsights({ locations: _locations, alerts: _alerts, incidents: _i
             RECOMMENDED PREVENTIONS
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {insights.recommended_actions.map((act, idx) => (
+            {(insights.recommended_actions || []).map((act, idx) => (
               <div key={idx} style={{ fontSize: '0.8rem', padding: '0.5rem', background: 'rgba(0, 135, 90, 0.03)', borderLeft: '2px solid var(--color-primary)', color: 'var(--text-main)', lineHeight: '1.3' }}>
                 {act}
               </div>
@@ -91,7 +91,7 @@ function AmbientInsights({ locations: _locations, alerts: _alerts, incidents: _i
             AUTOMATED WORKFLOWS
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {insights.automated_workflows.map((flow, idx) => (
+            {(insights.automated_workflows || []).map((flow, idx) => (
               <div key={idx} style={{ fontSize: '0.8rem', padding: '0.5rem', background: 'rgba(0, 191, 255, 0.03)', borderLeft: '2px solid var(--color-info)', color: 'var(--text-main)', lineHeight: '1.3', fontStyle: 'italic' }}>
                 {flow}
               </div>

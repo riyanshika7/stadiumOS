@@ -43,12 +43,16 @@ def test_translation_unsupported_language():
     gibberish = "qwertyuiopasdfghjklzxcvbnm12345"
     res = handle_translation(gibberish)
     
-    assert res["detected_language"] is not None
+    # Verify XAI structure present
+    assert "intent_detection" in res
+    assert res["intent_detection"]["detected_language"] is not None
     # Verify the fallback handles the query without throwing exceptions or returning empty fields
-    assert "translated_query" in res
-    assert res["translated_query"] == gibberish
+    assert res["intent_detection"]["translated_query"] == gibberish
     assert "suggested_reply_english" in res
     assert "volunteer_instructions" in res
+    # Verify XAI core fields present
+    assert "reasoning" in res
+    assert "actionable_instruction" in res
 
 def test_multiple_gates_simultaneous_bottleneck():
     """Verify that when multiple gates hit 100% capacity, all trigger independent XAI alerts."""

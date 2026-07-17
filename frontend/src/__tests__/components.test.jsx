@@ -204,6 +204,26 @@ describe('InclusiveMode Panel — WCAG Compliance', () => {
     expect(btn).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('renders deaf fan mode toggle button', () => {
+    render(<WrappedPanel />);
+    expect(screen.getByRole('button', { name: /Toggle Deaf Fan Mode/i })).toBeInTheDocument();
+  });
+
+  it('Deaf Fan Mode button has correct ARIA role and label', () => {
+    render(<WrappedPanel />);
+    const btn = screen.getByRole('button', { name: /Toggle Deaf Fan Mode/i });
+    expect(btn).toHaveAttribute('aria-pressed', 'false');
+    expect(btn).toHaveAttribute('id', 'deaf-mode-toggle');
+  });
+
+  it('Deaf Fan Mode toggles aria-pressed to true on click', () => {
+    render(<WrappedPanel />);
+    const btn = screen.getByRole('button', { name: /Toggle Deaf Fan Mode/i });
+    expect(btn).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(btn);
+    expect(btn).toHaveAttribute('aria-pressed', 'true');
+  });
+
   it('InclusiveModeProvider exposes a WCAG aria-live status region', () => {
     render(<WrappedPanel />);
     const liveRegion = document.getElementById('inclusive-live-region');

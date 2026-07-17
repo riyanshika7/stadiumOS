@@ -148,7 +148,7 @@ def test_translator_agent():
     ]
     for query, expected_lang in languages_tests:
         res = translate_query_simulator(query)
-        assert res["detected_language"] == expected_lang
+        assert res["intent_detection"]["detected_language"] == expected_lang
 
     handle_translation("¿Dónde está el baño?")
 
@@ -337,7 +337,7 @@ def test_swarm_genai_error():
 
 def test_translator_genai_success():
     mock_response = MagicMock()
-    mock_response.text = '{"detected_language": "Spanish", "intent": "restroom", "tone": "angry", "translated_query": "restroom", "suggested_reply_native": "baño", "suggested_reply_english": "restroom", "volunteer_instructions": "show restroom"}'
+    mock_response.text = '{"intent_detection": {"detected_language": "Spanish", "intent_category": "restroom", "tone": "angry", "urgency": "high", "translated_query": "restroom"}, "reasoning": "Test reasoning", "actionable_instruction": "Test action", "reasoning_engine": "Test engine", "plain_english_action": "Test action english", "suggested_reply_native": "baño", "suggested_reply_english": "restroom", "volunteer_instructions": "show restroom"}'
     
     with patch("google.genai.Client") as mock_client_class:
         mock_client = mock_client_class.return_value
@@ -345,7 +345,9 @@ def test_translator_genai_success():
         
         with patch("backend.app.agents.translator.USE_SIMULATOR", False):
             res = handle_translation("¿Dónde está el baño?")
-            assert res["detected_language"] == "Spanish"
+            assert res["intent_detection"]["detected_language"] == "Spanish"
+            assert "reasoning_engine" in res
+            assert "plain_english_action" in res
 
 def test_translator_genai_json_decode_error():
     mock_response = MagicMock()
@@ -357,7 +359,8 @@ def test_translator_genai_json_decode_error():
         
         with patch("backend.app.agents.translator.USE_SIMULATOR", False):
             res = handle_translation("¿Dónde está el baño?")
-            assert res["detected_language"] == "Spanish"
+            # On JSON decode error, falls back to simulator which returns XAI schema
+            assert res["intent_detection"]["detected_language"] == "Spanish"
 
 def test_translator_genai_error():
     with patch("google.genai.Client") as mock_client_class:
@@ -366,7 +369,8 @@ def test_translator_genai_error():
         
         with patch("backend.app.agents.translator.USE_SIMULATOR", False):
             res = handle_translation("¿Dónde está el baño?")
-            assert res["detected_language"] == "Spanish"
+            # On exception, falls back to simulator which returns XAI schema
+            assert res["intent_detection"]["detected_language"] == "Spanish"
 
 @pytest.mark.anyio
 async def test_weather_cold_and_rain():
@@ -543,6 +547,122 @@ def test_agents_use_simulator_logs():
             
     with patch("backend.app.agents.incident.USE_SIMULATOR", True):
         handle_incident_parsing("spill")
+
+# ── Coverage Boost for Dijkstra Pathfinder & GenAI Agent Functions ──────────
+
+class MockLocation:
+    def __init__(self, name, crowd_level, crowd_factor, accessibility_features):
+        self.name = name
+        self.crowd_level = crowd_level
+        self.crowd_factor = crowd_factor
+        self.accessibility_features = accessibility_features
+
+def test_dijkstra_pathfinder_coverage():
+    from backend.app.agents.navigation import dijkstra_path
+    
+    db_locs = [
+        MockLocation("Gate A", "low", 1.0, "elevator,ramp"),
+        MockLocation("Gate B", "low", 1.0, "stairs"),
+        MockLocation("Gate C", "high", 2.0, "stairs"),
+        MockLocation("Section 101", "low", 1.0, "elevator"),
+        MockLocation("Section 102", "low", 1.0, "stairs"),
+        MockLocation("Section 204", "low", 1.0, "elevator"),
+        MockLocation("Elevator 1", "low", 1.0, "elevator"),
+        MockLocation("Ramp North", "low", 1.0, "ramp"),
+        MockLocation("Restroom Block A", "low", 1.0, "elevator"),
+        MockLocation("Concession Stand North", "low", 1.0, "elevator")
+    ]
+    
+    # 1. Test normal path
+    res = dijkstra_path("Gate A", "Section 101", {"wheelchair": False}, db_locs)
+    assert res is not None
+    assert "Section 101" in res["key_locations_passed"]
+    
+    # 2. Test wheelchair path
+    res_wc = dijkstra_path("Gate A", "Section 101", {"wheelchair": True}, db_locs)
+    assert res_wc is not None
+    
+    # 3. Test invalid start/end
+    res_invalid = dijkstra_path("InvalidStart", "Section 101", {}, db_locs)
+    assert res_invalid is None
+    
+    # 4. Test unreachable path (using unconnected end node)
+    res_unreachable = dijkstra_path("Gate A", "Gate B", {"wheelchair": True}, db_locs)
+    # Since Gate B is stairs-only, wheelchair routing will reject Gate B, causing inf distance
+    assert res_unreachable is None
+
+def test_cctv_genai_coverage():
+    from backend.app.agents.cctv_triage import analyze_cctv_genai
+    mock_res = MagicMock()
+    mock_res.text = '{"risk_index": 5, "anomaly_detected": "none", "predicted_impact": "none", "automated_dispatch_action": "none"}'
+    with patch("google.genai.Client") as mock_client_class:
+        mock_client = mock_client_class.return_value
+        mock_client.models.generate_content.return_value = mock_res
+        res = analyze_cctv_genai("data:image/jpeg;base64,AAAA")
+        assert res["risk_index"] == 5
+
+def test_crowd_control_genai_coverage():
+    from backend.app.agents.crowd_control import generate_crowd_recommendation_genai
+    mock_res = MagicMock()
+    mock_res.text = '{"explanation": "congested", "recommended_action": "clear paths"}'
+    with patch("google.genai.Client") as mock_client_class:
+        mock_client = mock_client_class.return_value
+        mock_client.models.generate_content.return_value = mock_res
+        res = generate_crowd_recommendation_genai("Gate A", 1000, 850, 0.85, ["Gate B"])
+        assert res["explanation"] == "congested"
+
+def test_deescalation_genai_coverage():
+    from backend.app.agents.deescalation import coach_deescalation_genai
+    mock_res = MagicMock()
+    mock_res.text = '{"deescalation_script": "calm", "action_steps": ["listen"]}'
+    with patch("google.genai.Client") as mock_client_class:
+        mock_client = mock_client_class.return_value
+        mock_client.models.generate_content.return_value = mock_res
+        res = coach_deescalation_genai("dispute", "angry", "context")
+        assert res["deescalation_script"] == "calm"
+
+def test_swarm_genai_coverage():
+    from backend.app.agents.swarm import coordinate_swarm_genai
+    mock_res = MagicMock()
+    mock_res.text = '{"coordination_summary": "dispatch", "linguistic_playbook": "lang", "safety_playbook": "safe", "routing_playbook": "route", "ops_playbook": "ops"}'
+    with patch("google.genai.Client") as mock_client_class:
+        mock_client = mock_client_class.return_value
+        mock_client.models.generate_content.return_value = mock_res
+        res = coordinate_swarm_genai("incident")
+        assert res["coordination_summary"] == "dispatch"
+
+def test_translator_genai_coverage():
+    from backend.app.agents.translator import translate_query_genai
+    mock_res = MagicMock()
+    mock_res.text = '{"detected_language": "Spanish", "translated_query": "hello", "tone": "calm", "intent": "ask", "suggested_reply_english": "reply", "suggested_reply_native": "hola"}'
+    with patch("google.genai.Client") as mock_client_class:
+        mock_client = mock_client_class.return_value
+        mock_client.models.generate_content.return_value = mock_res
+        res = translate_query_genai("hola")
+        assert "detected_language" in res or "intent_detection" in res
+        
+    # Cover the fallback code paths where GenAI returns empty json
+    mock_res_empty = MagicMock()
+    mock_res_empty.text = '{}'
+    with patch("google.genai.Client") as mock_client_class:
+        mock_client = mock_client_class.return_value
+        mock_client.models.generate_content.return_value = mock_res_empty
+        res = translate_query_genai("fallback_test")
+        assert res["detected_language"] == "Unknown"
+        assert res["intent"] == "general_inquiry"
+        assert res["tone"] == "calm"
+        assert res["translated_query"] == "fallback_test"
+
+def test_vision_ticket_genai_coverage():
+    from backend.app.agents.vision_gate import analyze_ticket_vision_genai
+    mock_res = MagicMock()
+    mock_res.text = '{"is_valid": true, "ticket_type": "vip", "details": "VIP Access", "gate_code": "Gate A", "section_code": "101", "seat_code": "5"}'
+    with patch("google.genai.Client") as mock_client_class:
+        mock_client = mock_client_class.return_value
+        mock_client.models.generate_content.return_value = mock_res
+        res = analyze_ticket_vision_genai("dGVzdF9zdHJpbmc=")
+        assert res["is_valid"] is True
+
 
 
 

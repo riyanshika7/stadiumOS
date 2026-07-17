@@ -1,14 +1,14 @@
 import React from 'react';
-import { Accessibility } from 'lucide-react';
+import { Accessibility, Volume2 } from 'lucide-react';
 import { useInclusiveMode } from '../hooks/useInclusiveMode';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Inclusive Mode Control Panel — embedded in App header / toolbar
-// Renders accessible toggle button for Wheelchair Mode (Step-Free)
+// Renders accessible toggle buttons for Wheelchair Mode (Step-Free) and Deaf Fan Mode (Captions)
 // ──────────────────────────────────────────────────────────────────────────────
 
 export default function InclusiveModePanel() {
-  const { wheelchairMode, toggleWheelchairMode } = useInclusiveMode();
+  const { wheelchairMode, toggleWheelchairMode, deafMode, toggleDeafMode } = useInclusiveMode();
 
   return (
     <div
@@ -48,6 +48,40 @@ export default function InclusiveModePanel() {
         <Accessibility size={14} aria-hidden="true" />
         <span>♿ Step-Free</span>
       </button>
+
+      {/* Deaf Fan Mode Button */}
+      <button
+        id="deaf-mode-toggle"
+        onClick={toggleDeafMode}
+        aria-pressed={deafMode}
+        aria-label="Toggle Deaf Fan Mode – Enable real-time audio captioning"
+        title="Deaf Fan Mode"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          padding: '0.4rem 0.8rem',
+          fontSize: '0.75rem',
+          fontWeight: 700,
+          background: deafMode ? 'rgba(255, 234, 0, 0.12)' : 'rgba(255,255,255,0.03)',
+          color: deafMode ? '#FFEA00' : 'var(--text-muted)',
+          border: deafMode ? '2px solid #FFEA00' : '1px solid var(--border-color)',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            toggleDeafMode();
+          }
+        }}
+      >
+        <Volume2 size={14} aria-hidden="true" />
+        <span>🧏 Deaf Mode</span>
+      </button>
     </div>
   );
 }
+

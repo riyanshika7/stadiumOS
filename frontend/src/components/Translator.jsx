@@ -1,224 +1,164 @@
 import React, { useState } from 'react';
-import { Languages, Volume2, AlertCircle, Sparkles, ShieldAlert } from 'lucide-react';
+import { Languages, MessageSquare, Volume2, ShieldAlert, Sparkles } from 'lucide-react';
 import { API_BASE_URL } from '../constants';
+import TranslationHelpers from './TranslationHelpers';
+import DeescalationResult from './DeescalationResult';
 
 function Translator() {
-  const [translateInput, setTranslateInput] = useState('');
-  const [translationResult, setTranslationResult] = useState(null);
-  const [isTranslating, setIsTranslating] = useState(false);
-  
-  // De-escalation coach states
-  const [deescalateResult, setDeescalateResult] = useState(null);
+  const [queryText, setQueryText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  // De-escalation states
   const [isCoaching, setIsCoaching] = useState(false);
+  const [deescalateResult, setDeescalateResult] = useState(null);
 
   const handleTranslate = async (e) => {
-    if (e) e.preventDefault();
-    if (!translateInput.trim()) return;
+    e.preventDefault();
+    if (!queryText.trim()) return;
 
-    setIsTranslating(true);
+    setIsLoading(true);
+    setResult(null);
     setDeescalateResult(null);
+
     try {
-      const res = await fetch(`${API_BASE_URL}/api/translate`, {
+      const res = await fetch(`${API_BASE_URL}/api/volunteer/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: translateInput }),
+        body: JSON.stringify({ query: queryText }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setTranslationResult(data);
+      setResult(data);
     } catch (err) {
-      console.error('Translation error:', err);
-      setTranslationResult(null);
+      console.error(err);
+      setResult(null);
     } finally {
-      setIsTranslating(false);
+      setIsLoading(false);
     }
   };
 
-  const fetchDeescalateCoaching = async () => {
-    if (!translationResult) return;
+  const handleRequestDeescalation = async () => {
+    if (!result) return;
     setIsCoaching(true);
+    setDeescalateResult(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/deescalate`, {
+      const res = await fetch(`${API_BASE_URL}/api/volunteer/deescalate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: translationResult.translated_query,
-          tone: translationResult.tone,
-          context: `Volunteer is dealing with a fan requesting help. Detected intent: ${translationResult.intent}`
+        body: JSON.stringify({ 
+          fan_query: queryText,
+          detected_language: result.detected_language,
+          intent: result.intent
         }),
       });
       const data = await res.json();
       setDeescalateResult(data);
     } catch (err) {
-      console.error('Deescalation error:', err);
+      console.error(err);
     } finally {
       setIsCoaching(false);
     }
   };
 
-  // Converts the promise-chain pattern to async/await for consistency.
-  const simulateTranslation = async (phrase) => {
-    setTranslateInput(phrase);
-    setIsTranslating(true);
-    setDeescalateResult(null);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/translate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: phrase }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setTranslationResult(data);
-    } catch (err) {
-      console.error('Translation simulation error:', err);
-    } finally {
-      setIsTranslating(false);
-    }
+  const runPresetTranslation = (phrase) => {
+    setQueryText(phrase);
+    // Auto submit
+    const fakeEvent = { preventDefault: () => {} };
+    setTimeout(() => handleTranslate(fakeEvent), 50);
   };
 
   return (
     <div className="glass-card">
       <h3 className="card-title">
-        <Languages size={22} />
-        MULTILINGUAL CO-PILOT
+        <Languages size={20} />
+        MULTILINGUAL TRANSLATION & DE-ESCALATION CO-PILOT
       </h3>
-      
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem', lineHeight: '1.4' }}>
-        Translate queries from foreign fans instantly. Use speech simulator tags below or type custom text.
+
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem', lineHeight: '1.4' }}>
+        Identify fan query intents, auto-detect spoken language, translate messages instantly, and generate psycho-social scripts to de-escalate security conflicts.
       </p>
 
-      {/* Language quick-fill buttons */}
-      <div className="speech-helpers" role="group" aria-label="Language phrase simulators">
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation('¿Dónde puedo encontrar el ascensor más cercano para silla de ruedas?')}>
-          🇪🇸 Spanish: Elevator Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation("Où se trouve la billetterie s'il vous plaît?")}>
-          🇫🇷 French: Ticket Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation('ห้องน้ำอยู่ที่ไหน')}>
-          🇹🇭 Thai: Restroom Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation('トイレはどこですか')}>
-          🇯🇵 Japanese: Restroom Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation('洗手间在哪里')}>
-          🇨🇳 Mandarin: Restroom Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation('أين المرحاض؟')}>
-          🇸🇦 Arabic: Restroom Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation('Wo ist die Toilette?')}>
-          🇩🇪 German: Restroom Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation('Onde fica o banheiro?')}>
-          🇧🇷 Portuguese: Restroom Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation("Dov'è il bagno?")}>
-          🇮🇹 Italian: Restroom Query
-        </button>
-        <button type="button" className="speech-tag" onClick={() => simulateTranslation('Me siento muy mal, tengo dolor de pecho y me falta el aire.')}>
-          🚨 Spanish: Panic Medical
-        </button>
-      </div>
+      {/* Preset simulation helpers */}
+      <TranslationHelpers onSimulate={runPresetTranslation} />
 
-      <form onSubmit={handleTranslate}>
-        <div className="form-group">
-          <label htmlFor="translate-input">Fan Query / Phrase</label>
-          <textarea
-            id="translate-input"
-            value={translateInput}
-            onChange={(e) => setTranslateInput(e.target.value)}
-            placeholder="Type or click a simulator tag above to translate..."
-            rows={3}
-          />
-        </div>
-        <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={isTranslating}>
-          {isTranslating ? 'Analyzing & Translating...' : 'Translate & Get Suggested Reply'}
+      <form onSubmit={handleTranslate} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
+        <input
+          type="text"
+          value={queryText}
+          onChange={(e) => setQueryText(e.target.value)}
+          placeholder="Type or click a simulator tag above to translate..."
+          style={{ flex: 1, padding: '0.6rem 1rem' }}
+        />
+        <button
+          type="submit"
+          className="btn btn-primary"
+          style={{ background: 'var(--color-primary)', border: 'none', padding: '0.6rem 1.2rem', cursor: 'pointer', fontWeight: 'bold' }}
+          disabled={isLoading || !queryText.trim()}
+        >
+          {isLoading ? 'Translating...' : 'Translate'}
         </button>
       </form>
 
-      {/* Pulsing Audio Waveform visualizer */}
-      {isTranslating && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.3rem', height: '50px', margin: '1rem 0' }}>
-          <div style={{ width: '4px', height: '20px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate' }} />
-          <div style={{ width: '4px', height: '40px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate 0.2s' }} />
-          <div style={{ width: '4px', height: '15px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate 0.4s' }} />
-          <div style={{ width: '4px', height: '35px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate 0.1s' }} />
-          <div style={{ width: '4px', height: '25px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate 0.3s' }} />
-          <div style={{ width: '4px', height: '10px', background: 'var(--color-primary)', borderRadius: '4px', animation: 'bounceWave 0.8s ease-in-out infinite alternate 0.5s' }} />
-          {/* bounceWave keyframes are defined in index.css */}
-        </div>
-      )}
-
-      {translationResult && (
-        <div className="suggestion-box">
-          <div className="suggestion-header">
-            <span>Lang: {translationResult.detected_language}</span>
-            <span>Intent: {translationResult.intent.replace('_', ' ')}</span>
-            <span style={{ 
-              color: translationResult.tone === 'panicked' || translationResult.tone === 'angry' ? 'var(--color-danger)' : 'var(--color-accent)',
-              fontWeight: '900'
-            }}>
-              Tone: {translationResult.tone.toUpperCase()}
+      {/* Translation Results Panel */}
+      {result && (
+        <div className="fade-in" style={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--color-accent)' }}>
+              <MessageSquare size={16} />
+              CO-PILOT DISPATCH SUGGESTION
+            </span>
+            <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 'bold' }}>
+              🌍 {result.detected_language}
             </span>
           </div>
-          
-          <div className="suggestion-field">
-            <span>English Translation</span>
-            <p>{translationResult.translated_query}</p>
-          </div>
-          
-          <div className="suggestion-field" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem' }}>
-            <span>Suggested English Reply</span>
-            <p style={{ color: 'var(--color-accent)' }}>{translationResult.suggested_reply_english}</p>
-          </div>
-          
-          <div className="suggestion-field" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem' }}>
-            <span>Suggested Native Reply (Read or Show to Fan)</span>
-            <p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', lineHeight: '1.4' }}>
-              <Volume2 size={20} style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
-              <strong>{translationResult.suggested_reply_native}</strong>
-            </p>
+
+          <div className="speech-playbooks" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
+            {/* Translated meaning */}
+            <div style={{ background: 'rgba(255,255,255,0.01)', padding: '0.6rem', border: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block', fontWeight: 'bold' }}>TRANSLATED MEANING:</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{result.translated_query}</span>
+            </div>
+
+            {/* Spoken Script to read to fan */}
+            <div style={{ background: 'rgba(0, 135, 90, 0.02)', padding: '0.6rem', border: '1px solid rgba(0, 135, 90, 0.2)' }}>
+              <span style={{ fontSize: '0.65rem', color: 'var(--color-success)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <Volume2 size={12} />
+                SPOKEN FAN SCRIPT (IN THEIR LANGUAGE):
+              </span>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: 'bold', margin: '0.25rem 0 0 0' }}>
+                "{result.translated_response}"
+              </p>
+            </div>
+            
+            {/* Actionable Instruction */}
+            {result.actionable_instruction && (
+              <div style={{ background: 'rgba(255,255,255,0.01)', padding: '0.6rem', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block', fontWeight: 'bold' }}>ACTIONABLE INSTRUCTION:</span>
+                <span style={{ fontSize: '0.8rem', fontWeight: '600' }}>{result.actionable_instruction}</span>
+              </div>
+            )}
           </div>
 
-          {/* Volunteer Playbook Instructions */}
-          <div style={{ 
-            marginTop: '0.5rem',
-            padding: '0.75rem', 
-            background: translationResult.tone === 'panicked' || translationResult.tone === 'angry' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.03)',
-            border: `1px solid ${translationResult.tone === 'panicked' || translationResult.tone === 'angry' ? 'var(--color-danger)' : 'var(--border-color)'}`,
-            borderRadius: '4px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.35rem'
-          }}>
-            <span style={{ 
-              fontSize: '0.75rem', 
-              fontWeight: '800', 
-              color: translationResult.tone === 'panicked' || translationResult.tone === 'angry' ? 'var(--color-danger)' : 'var(--color-accent)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem'
-            }}>
-              <AlertCircle size={14} />
-              VOLUNTEER ACTION GUIDE
-            </span>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: '1.4', fontWeight: '600' }}>
-              {translationResult.volunteer_instructions}
-            </p>
-          </div>
+          {/* Explainable AI reasoning engine details */}
+          {result.reasoning_engine && (
+            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.6rem', border: '1px solid var(--border-color)', borderRadius: '4px', fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <span style={{ fontWeight: 'bold', color: 'var(--text-main)', display: 'block' }}>🧠 EXPLAINABLE AI REASONING DETAILS:</span>
+              <span>{result.reasoning_engine}</span>
+            </div>
+          )}
 
-          {/* Trigger De-escalation Coaching for High Stress Tones */}
-          {(translationResult.tone === 'angry' || translationResult.tone === 'panicked') && !deescalateResult && (
-            <button 
-              type="button" 
-              onClick={fetchDeescalateCoaching}
-              className="btn btn-secondary" 
-              style={{ 
-                marginTop: '0.5rem', 
-                width: '100%', 
+          {/* Trigger De-escalation Option if conflict/high-urgency query */}
+          {result.intent === 'conflict' && (
+            <button
+              onClick={handleRequestDeescalation}
+              className="btn btn-warning"
+              style={{
+                marginTop: '0.5rem',
+                width: '100%',
+                padding: '0.5rem',
                 fontSize: '0.8rem',
+                background: 'rgba(255, 199, 44, 0.15)',
                 border: '1px solid var(--color-warning)',
                 color: 'var(--color-warning)',
                 fontWeight: 'bold'
@@ -230,41 +170,7 @@ function Translator() {
             </button>
           )}
 
-          {/* Display De-escalation Coaching Response */}
-          {deescalateResult && (
-            <div style={{ 
-              marginTop: '0.5rem', 
-              padding: '0.75rem', 
-              background: 'rgba(255, 199, 44, 0.05)', 
-              border: '2px solid var(--color-warning)', 
-              borderRadius: '4px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem'
-            }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--color-warning)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <ShieldAlert size={14} />
-                DE-ESCALATION AGENT RESPONSE
-              </span>
-              
-              <div style={{ fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', display: 'block', fontWeight: 'bold' }}>SPOKEN SCRIPT FOR FAN:</span>
-                <p style={{ color: 'var(--text-main)', fontWeight: 'bold', fontStyle: 'italic', paddingLeft: '0.5rem', borderLeft: '2px solid var(--color-warning)' }}>
-                  "{deescalateResult.deescalation_script}"
-                </p>
-              </div>
-
-              <div style={{ fontSize: '0.8rem' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', display: 'block', fontWeight: 'bold' }}>PHYSICAL/BODY LANGUAGE TIPS:</span>
-                <p style={{ color: 'var(--text-main)', fontWeight: '600' }}>{deescalateResult.body_language_tips}</p>
-              </div>
-
-              <div style={{ fontSize: '0.8rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.4rem' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', display: 'block', fontWeight: 'bold' }}>TACTICAL DISPATCH STEP:</span>
-                <p style={{ color: 'var(--color-accent)', fontWeight: 'bold' }}>{deescalateResult.tactical_step}</p>
-              </div>
-            </div>
-          )}
+          <DeescalationResult deescalateResult={deescalateResult} />
         </div>
       )}
     </div>

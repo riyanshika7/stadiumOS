@@ -8,10 +8,16 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 const InclusiveModeContext = createContext({
   wheelchairMode: false,
   toggleWheelchairMode: () => {},
+  deafMode: false,
+  toggleDeafMode: () => {},
+  captionText: '',
+  setCaptionText: () => {},
 });
 
 export function InclusiveModeProvider({ children }) {
   const [wheelchairMode, setWheelchairMode] = useState(false);
+  const [deafMode, setDeafMode] = useState(false);
+  const [captionText, setCaptionText] = useState('');
 
   const toggleWheelchairMode = useCallback(() => {
     setWheelchairMode((prev) => {
@@ -26,9 +32,28 @@ export function InclusiveModeProvider({ children }) {
     });
   }, []);
 
+  const toggleDeafMode = useCallback(() => {
+    setDeafMode((prev) => {
+      const next = !prev;
+      const el = document.getElementById('inclusive-live-region');
+      if (el) {
+        el.textContent = next
+          ? 'Deaf Fan Mode enabled. Real-time captions will be displayed.'
+          : 'Deaf Fan Mode disabled.';
+      }
+      // Reset caption text if disabled
+      if (!next) {
+        setCaptionText('');
+      } else {
+        setCaptionText('🧏 DEAF FAN MODE ACTIVE: Real-time transcriptions & broadcasts will appear here in high-contrast captions.');
+      }
+      return next;
+    });
+  }, []);
+
   return (
     <InclusiveModeContext.Provider
-      value={{ wheelchairMode, toggleWheelchairMode }}
+      value={{ wheelchairMode, toggleWheelchairMode, deafMode, toggleDeafMode, captionText, setCaptionText }}
     >
       {/* WCAG SR-only live region for mode change announcements */}
       <div
@@ -56,5 +81,6 @@ export function InclusiveModeProvider({ children }) {
 export function useInclusiveMode() {
   return useContext(InclusiveModeContext);
 }
+
 
 export default InclusiveModeContext;

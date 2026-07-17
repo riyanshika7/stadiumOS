@@ -11,3 +11,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </InclusiveModeProvider>
   </React.StrictMode>,
 )
+
+// Register self-healing service worker (Step F41 Offline capabilities)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => console.log('StadiumOS ServiceWorker registered successfully: ', reg.scope))
+      .catch((err) => console.error('StadiumOS ServiceWorker registration failed: ', err));
+  });
+}

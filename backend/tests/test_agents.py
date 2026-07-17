@@ -6,16 +6,19 @@ from backend.app.agents.navigation import handle_navigation
 def test_translation_agent_fallback_spanish():
     """Verify that the translation agent correctly maps Spanish inputs in simulator mode."""
     res = handle_translation("¿Dónde puedo encontrar el ascensor?")
-    assert res["detected_language"] == "Spanish"
-    assert "elevator" in res["translated_query"].lower()
+    assert res["intent_detection"]["detected_language"] == "Spanish"
+    assert "elevator" in res["intent_detection"]["translated_query"].lower()
     assert "suggested_reply_english" in res
     assert "suggested_reply_native" in res
+    # Verify XAI fields present
+    assert "reasoning" in res
+    assert "actionable_instruction" in res
 
 def test_translation_agent_fallback_french():
     """Verify that the translation agent correctly maps French inputs in simulator mode."""
     res = handle_translation("Où se trouve la toilette?")
-    assert res["detected_language"] == "French"
-    assert "restroom" in res["translated_query"].lower() or "toilet" in res["translated_query"].lower()
+    assert res["intent_detection"]["detected_language"] == "French"
+    assert "restroom" in res["intent_detection"]["translated_query"].lower() or "toilet" in res["intent_detection"]["translated_query"].lower()
 
 def test_incident_agent_medical():
     """Verify that the incident parser correctly detects a medical category and assigns high urgency."""
