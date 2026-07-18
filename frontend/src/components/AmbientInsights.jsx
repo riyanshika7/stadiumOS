@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Brain, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Brain, AlertTriangle, ShieldCheck, Cog } from 'lucide-react';
 import { API_BASE_URL, AMBIENT_POLL_INTERVAL_MS } from '../constants';
 
 // AmbientInsights receives locations/alerts/incidents for future use but

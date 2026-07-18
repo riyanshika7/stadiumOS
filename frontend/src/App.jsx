@@ -10,6 +10,7 @@ import CctvMonitor from './components/CctvMonitor';
 import SwarmOrchestrator from './components/SwarmOrchestrator';
 import LandingPage from './components/LandingPage';
 import WhatIfSimulator from './components/WhatIfSimulator';
+import MissionCommander from './components/MissionCommander';
 import useDashboardState from './hooks/useDashboardState';
 import CommandBar from './components/CommandBar';
 import DashboardHeader from './components/DashboardHeader';
@@ -19,7 +20,10 @@ import ToastContainer from './components/ToastContainer';
 import AuthScreen from './components/AuthScreen';
 import useToast from './hooks/useToast';
 import CopilotModal from './components/CopilotModal';
-import { VIEW_LANDING, VIEW_MISSION_CONTROL, VIEW_DASHBOARD } from './constants';
+import ClosedCaptionsConsole from './components/ClosedCaptionsConsole';
+const VIEW_LANDING = 'landing';
+const VIEW_MISSION_CONTROL = 'mission_control';
+const VIEW_DASHBOARD = 'dashboard';
 
 const DashboardDigitalTwin = lazy(() =>
   import('./components/DashboardDigitalTwin')
@@ -274,6 +278,9 @@ function App() {
         </aside>
 
         <main id="main-content" className="main-content" tabIndex="-1" aria-label="Stadium Operations Dashboard">
+          <ErrorBoundary>
+            <MissionCommander />
+          </ErrorBoundary>
           <AmbientInsights locations={locations} alerts={alerts} incidents={incidents} />
           <AlertFeed alerts={alerts} />
 
@@ -321,24 +328,11 @@ function App() {
             <IncidentForm onIncidentSubmitted={handleIncidentOfflineIntercept} />
           </ErrorBoundary>
 
-          {deafMode && captionText && (
-            <div 
-              role="alert" 
-              aria-live="assertive" 
-              className="caption-banner"
-            >
-              <div className="caption-header">
-                <span className="caption-label">🧏 Real-Time Closed Captions (CC)</span>
-                <button 
-                  onClick={() => setCaptionText('')} 
-                  aria-label="Dismiss caption"
-                  className="caption-dismiss"
-                >
-                  ✕
-                </button>
-              </div>
-              {captionText}
-            </div>
+          {deafMode && (
+            <ClosedCaptionsConsole 
+              captionText={captionText}
+              setCaptionText={setCaptionText}
+            />
           )}
         </main>
       </div>

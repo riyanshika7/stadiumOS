@@ -76,7 +76,10 @@ def main():
         # Start Frontend: React (Vite)
         npm_cmd = "npm.cmd" if sys.platform == "win32" else "npm"
         frontend_proc = subprocess.Popen(
-            [npm_cmd, "run", "dev"],
+            # Rebuild Vite's pre-bundled dependency cache at startup. A stale
+            # cache returns "Outdated Optimize Dep" responses and leaves the
+            # browser with a blank page until it is manually refreshed.
+            [npm_cmd, "run", "dev", "--", "--force"],
             cwd=frontend_dir,
             shell=sys.platform == "win32"
         )

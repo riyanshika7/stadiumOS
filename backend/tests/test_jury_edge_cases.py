@@ -157,13 +157,13 @@ class TestCorruptedUploads:
         assert "unsupported" in response.text.lower()
 
     def test_too_large_file_rejected(self, huge_csv):
-        """File exceeding max size should get 400."""
+        """File exceeding max size should get 413."""
         response = client.post(
             "/api/jury/evaluate",
             files={"file": ("huge.csv", huge_csv, "text/csv")},
             data={"scenario": "comprehensive"},
         )
-        assert response.status_code == 400
+        assert response.status_code == 413
         assert "exceeds" in response.text.lower()
 
 

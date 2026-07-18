@@ -1,10 +1,22 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import List, Optional
 from datetime import datetime
 
 # Translation schemas
 class TranslateRequest(BaseModel):
     query: str = Field(..., min_length=1, description="Raw query from the fan")
+
+    @field_validator("query")
+    @classmethod
+    def validate_llm_bound_query(cls, value: str) -> str:
+        from backend.app.security import sanitize_llm_input
+        return sanitize_llm_input(value)
+
+class IntentDetection(BaseModel):
+    detected_language: str
+    intent: str
+    tone: str
+    translated_query: str
 
 class TranslateResponse(BaseModel):
     detected_language: str
@@ -14,6 +26,17 @@ class TranslateResponse(BaseModel):
     suggested_reply_native: str
     suggested_reply_english: str
     volunteer_instructions: str
+    
+    # Frontend compatibility
+    translated_response: Optional[str] = None
+    actionable_instruction: Optional[str] = None
+    reasoning_engine: Optional[str] = None
+    plain_english_reasoning: Optional[str] = None
+    actionable_script: Optional[str] = None
+    
+    # XAI / test compatibility
+    intent_detection: Optional[IntentDetection] = None
+    reasoning: Optional[str] = None
 
 # Incident schemas
 class IncidentCreate(BaseModel):
@@ -38,10 +61,14 @@ class IncidentUpdateStatus(BaseModel):
 # Navigation schemas
 class NavigationRequest(BaseModel):
     start_location: str = Field(..., description="Name of start location")
-    destination: str = Field(..., description="Name of destination location")
-    wheelchair: bool = Field(False, description="Wheelchair accessibility needed")
-    visual: bool = Field(False, description="Visual impairment assistance needed")
-    stroller: bool = Field(False, description="Stroller/family assistance needed")
+    destination: Optional[str] = Field(None, description="Name of destination location")
+    wheelchair: Optional[bool] = Field(False, description="Wheelchair accessibility needed")
+    visual: Optional[bool] = Field(False, description="Visual impairment assistance needed")
+    stroller: Optional[bool] = Field(False, description="Stroller/family assistance needed")
+    
+    # Frontend properties compatibility
+    end_location: Optional[str] = Field(None, description="Name of destination location")
+    accessibility_needs: Optional[List[str]] = Field(None, description="List of accessibility requirements")
 
 class NavigationResponse(BaseModel):
     route_description: str
@@ -142,3 +169,26 @@ class ChaosResponse(BaseModel):
     error_caught: str
     fallback_message: str
     resolution_steps: List[str]
+
+# Mission Commander schemas
+class MissionCommanderRequest(BaseModel):
+    situation: str = Field(..., description="The reported operational situation text")
+
+class RecommendationItem(BaseModel):
+    action: str
+    why: str
+
+class MissionCommanderResponse(BaseModel):
+    situation_summary: str
+    ai_reasoning: str
+    risk_level: str
+    affected_zones: List[str]
+    fans_impacted: int
+    accessibility_impact: str
+    medical_impact: str
+    security_impact: str
+    transportation_impact: str
+    predicted_resolution_time: str
+    confidence_score: float
+    recommendations: List[RecommendationItem]
+    timeline: List[str]

@@ -82,13 +82,15 @@ export default function JuryPortal() {
       </p>
 
       <div className="incident-tab-bar" style={{ marginBottom: '1rem' }}>
-        <div
+        <button
+          type="button"
           className={`incident-tab-btn ${file ? 'active' : ''}`}
           onClick={() => inputRef.current?.click()}
-          style={{ cursor: 'pointer', textAlign: 'center' }}
+          style={{ cursor: 'pointer', textAlign: 'center', width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '6px' }}
+          aria-label={file ? `Change selected file: ${file.name}` : 'Choose File (CSV, PDF, SQLite)'}
         >
           {file ? `📄 ${file.name}` : '📁 Choose File (CSV, PDF, SQLite)'}
-        </div>
+        </button>
         <input
           ref={inputRef}
           type="file"

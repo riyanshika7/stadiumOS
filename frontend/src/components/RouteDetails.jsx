@@ -9,11 +9,11 @@ export default function RouteDetails({ routeResult }) {
       <div className="route-meta">
         <div className="meta-item">
           <Clock size={16} />
-          <span>Est. Time: {routeResult.estimated_time_minutes} mins</span>
+          <span>Est. Time: {routeResult.estimated_time_minutes || 0} mins</span>
         </div>
         <div className="meta-item">
           <MapPin size={16} />
-          <span>{routeResult.key_locations_passed.length} checkpoints</span>
+          <span>{routeResult.key_locations_passed?.length || 0} checkpoints</span>
         </div>
       </div>
 
@@ -23,29 +23,35 @@ export default function RouteDetails({ routeResult }) {
           🧠 EXPLAINABLE AI (XAI) PATH ROUTING REASONING
         </span>
         <p className="route-desc-text" style={{ margin: 0, fontSize: '0.78rem', color: '#e2e8f0', lineHeight: '1.4' }}>
-          {routeResult.route_description}
+          {routeResult.route_description || "Calculated route path."}
         </p>
       </div>
 
-      <div style={{ marginBottom: '0.75rem' }}>
-        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Accessibility Assist Markers</span>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
-          {routeResult.accessibility_features_highlighted.map((feat, idx) => (
-            <span key={idx} style={{ fontSize: '0.75rem', background: 'rgba(255, 199, 44, 0.1)', color: 'var(--color-accent)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: '600' }}>
-              ✓ {feat}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Route Path Checkpoints</span>
-      <div className="route-steps-visual" style={{ marginTop: '0.5rem' }}>
-        {routeResult.key_locations_passed.map((node, idx) => (
-          <div key={idx} className="route-step-node">
-            {node}
+      {routeResult.accessibility_features_highlighted && routeResult.accessibility_features_highlighted.length > 0 && (
+        <div style={{ marginBottom: '0.75rem' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Accessibility Assist Markers</span>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+            {routeResult.accessibility_features_highlighted.map((feat, idx) => (
+              <span key={idx} style={{ fontSize: '0.75rem', background: 'rgba(255, 199, 44, 0.1)', color: 'var(--color-accent)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: '600' }}>
+                ✓ {feat}
+              </span>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+
+      {routeResult.key_locations_passed && routeResult.key_locations_passed.length > 0 && (
+        <>
+          <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Route Path Checkpoints</span>
+          <div className="route-steps-visual" style={{ marginTop: '0.5rem' }}>
+            {routeResult.key_locations_passed.map((node, idx) => (
+              <div key={idx} className="route-step-node">
+                {node}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

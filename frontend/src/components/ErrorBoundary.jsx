@@ -1,4 +1,5 @@
 import React from 'react';
+import { ShieldAlert } from 'lucide-react';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {

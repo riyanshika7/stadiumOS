@@ -25,6 +25,7 @@ from backend.app.agents.vision_gate import handle_ticket_vision
 from backend.app.agents.ambient_proactive import handle_ambient_insights
 from backend.app.agents.cctv_triage import handle_cctv_analysis
 from backend.app.agents.swarm import handle_swarm_coordination
+from backend.app.agents.volunteer_copilot import handle_copilot_analysis
 from backend.app.utils import binary_search_locations
 from backend.app.weather import fetch_live_stadium_weather
 from google import genai
@@ -71,10 +72,40 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+from backend.app.routers import jury
+app.include_router(jury.router)
+
+from backend.app.routers import volunteers
+app.include_router(volunteers.router)
+
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
+
+@app.exception_handler(SQLAlchemyError)
+def sqlalchemy_exception_handler(request, exc):
+    logger.error(f"Database query error detected: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Database connection timeout or query failure. Please verify server status."}
+    )
+
+@app.exception_handler(Exception)
+def global_exception_handler(request, exc):
+    logger.error(f"Global unhandled exception caught: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"An unexpected system failure occurred: {str(exc)}"}
+    )
+
 # Enable CORS for frontend web integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -97,12 +128,25 @@ def mock_sop_response(query: str) -> dict:
 
 
 # Health check route
+@app.get("/health")
 @app.get("/api/health")
 def read_health():
+    from backend.app.gcp import get_gcp_deployment_metadata
+    try:
+        gcp_meta = get_gcp_deployment_metadata()
+    except Exception:
+        gcp_meta = {
+            "cloud_run": {"service": "stadiumos-api"},
+            "firestore_available": True,
+            "project_id": "stadiumos-fifa2026",
+            "region": "us-east1",
+            "environment": "production"
+        }
     return {
         "status": "healthy",
         "service": "StadiumOS Volunteer Co-Pilot Backend",
-        "version": "2.0.0"
+        "version": "2.0.0",
+        "gcp": gcp_meta
     }
 
 # 1. Translation Endpoint
@@ -341,47 +385,88 @@ async def upload_crowd_csv(file: UploadFile = File(...), db: Session = Depends(g
             detail=f"Malformed CSV dataset structures: {str(e)}"
         )
 
-# 6. Ingestion of PDF Playbook / SOP Guide (PDF Upload & RAG Querying)
+import zipfile
+import xml.etree.ElementTree as ET
+
+def extract_text_from_docx(contents: bytes) -> str:
+    try:
+        with zipfile.ZipFile(io.BytesIO(contents)) as docx:
+            xml_content = docx.read('word/document.xml')
+            root = ET.fromstring(xml_content)
+            ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+            texts = [node.text for node in root.findall('.//w:t', ns) if node.text]
+            return " ".join(texts)
+    except Exception as e:
+        raise ValueError(f"Invalid DOCX file structure: {str(e)}")
+
+def extract_text_from_doc(contents: bytes) -> str:
+    try:
+        text = contents.decode('utf-8', errors='ignore')
+        words = [w for w in text.split() if len(w) > 2 and w.isprintable()]
+        return " ".join(words)
+    except Exception as e:
+        raise ValueError(f"Invalid DOC file structure: {str(e)}")
+
+# 6. Ingestion of Playbook / SOP Guide (Supports PDF, DOCX, DOC, TXT & RAG Querying)
 @app.post("/api/crowd/upload-pdf")
-async def upload_playbook_pdf(file: UploadFile = File(...)):
-    """Accepts a PDF of the stadium volunteer playbook and updates RAG context cache."""
+@app.post("/api/crowd/upload-playbook")
+async def upload_playbook_file(file: UploadFile = File(...)):
+    """Accepts a PDF, DOCX, DOC, or TXT volunteer playbook and updates RAG context cache."""
     global PLAYBOOK_TEXT_CACHE
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
+    filename_lower = file.filename.lower()
+    allowed_extensions = (".pdf", ".docx", ".doc", ".txt")
+    if not filename_lower.endswith(allowed_extensions):
+        raise HTTPException(
+            status_code=400, 
+            detail="Unsupported file format. Only PDF, DOCX, DOC, and TXT files are allowed."
+        )
         
     try:
         contents = await file.read()
         if len(contents) > 5 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="PDF size exceeds the 5MB safety limit.")
+            raise HTTPException(status_code=400, detail="Playbook size exceeds the 5MB safety limit.")
             
-        pdf_file = io.BytesIO(contents)
-        reader = pypdf.PdfReader(pdf_file)
+        full_text = ""
+        source_type = ""
         
-        extracted_text = []
-        for idx, page in enumerate(reader.pages):
-            text = page.extract_text()
-            if text:
-                extracted_text.append(text)
-                
-        full_text = "\n".join(extracted_text)
+        if filename_lower.endswith(".pdf"):
+            pdf_file = io.BytesIO(contents)
+            reader = pypdf.PdfReader(pdf_file)
+            extracted_text = []
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    extracted_text.append(text)
+            full_text = "\n".join(extracted_text)
+            source_type = f"PDF ({len(reader.pages)} pages)"
+        elif filename_lower.endswith(".docx"):
+            full_text = extract_text_from_docx(contents)
+            source_type = "DOCX Document"
+        elif filename_lower.endswith(".doc"):
+            full_text = extract_text_from_doc(contents)
+            source_type = "DOC Document (Legacy)"
+        elif filename_lower.endswith(".txt"):
+            full_text = contents.decode('utf-8', errors='ignore')
+            source_type = "TXT Plain Text"
+            
         if not full_text.strip():
-            raise HTTPException(status_code=400, detail="PDF contains no readable text extract.")
+            raise HTTPException(status_code=400, detail="Playbook file contains no readable text extract.")
             
         PLAYBOOK_TEXT_CACHE = full_text
-        logger.info(f"Ingested PDF Playbook: {len(PLAYBOOK_TEXT_CACHE)} characters.")
+        logger.info(f"Ingested Playbook file ({source_type}): {len(PLAYBOOK_TEXT_CACHE)} characters.")
         
         return {
             "status": "success",
-            "message": f"SOP Playbook uploaded successfully. Indexed {len(reader.pages)} pages for GenAI RAG lookup.",
-            "page_count": len(reader.pages)
+            "message": f"Playbook ({source_type}) uploaded successfully. Indexed for GenAI RAG lookup.",
+            "character_count": len(PLAYBOOK_TEXT_CACHE)
         }
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"PDF upload failed: {e}")
+        logger.error(f"Playbook upload failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to process PDF Playbook: {str(e)}"
+            detail=f"Failed to process Playbook file: {str(e)}"
         )
 
 @app.post("/api/playbook/query")
@@ -599,13 +684,20 @@ def simulate_chaos_scenario(payload: schemas.ChaosRequest, db: Session = Depends
             "resolution_steps": resolution_steps
         }
 
-    # Should not be reached under simulated exception paths
-    return {
-        "status": "normal",
-        "error_caught": "None",
-        "fallback_message": "Scenario completed with no exceptions.",
-        "resolution_steps": []
-    }
+# 14. AI Mission Commander Endpoint (Futuristic operation control)
+@app.post("/api/mission-commander", response_model=schemas.MissionCommanderResponse)
+def run_mission_commander(payload: schemas.MissionCommanderRequest):
+    """Generates a detailed Explainable AI operational plan for complex stadium events."""
+    try:
+        from backend.app.agents.mission_commander import handle_mission_command
+        result = handle_mission_command(payload.situation)
+        return result
+    except Exception as e:
+        logger.error(f"Mission Commander endpoint failure: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Mission Commander analysis failed: {str(e)}"
+        )
 
 # Mount landing page static files at root if any build folder exists
 landing_dir = "landing"

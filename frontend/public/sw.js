@@ -34,11 +34,8 @@ self.addEventListener('fetch', (event) => {
   // Intercept local assets only (excluding API endpoint loops)
   if (url.startsWith(self.location.origin) && !url.includes('/api/') && event.request.method === 'GET') {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(event.request).then((response) => {
+      fetch(event.request)
+        .then((response) => {
           if (response && response.status === 200) {
             const responseCopy = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -46,10 +43,15 @@ self.addEventListener('fetch', (event) => {
             });
           }
           return response;
-        }).catch(() => {
-          return caches.match('/index.html');
-        });
-      })
+        })
+        .catch(() => {
+          return caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            return caches.match('/index.html');
+          });
+        })
     );
   }
 });

@@ -53,8 +53,8 @@ export default function TicketScanResult({ scanResult, uploadedFilename }) {
         </span>
       </div>
 
-      {/* Only show seat grid if actual ticket data is present */}
-      {scanResult.category !== 'INVALID DOCUMENT' && (
+      {/* Only show seat grid if the ticket is valid */}
+      {scanResult.is_valid && (
         <div className="ticket-grid">
           <div style={{ background: 'rgba(255,255,255,0.02)', padding: '0.4rem', border: '1px solid var(--border-color)' }}>
             <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block' }}>GATE</span>

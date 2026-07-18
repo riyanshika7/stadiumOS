@@ -63,14 +63,14 @@ def generate_insights_simulator(locations_data: list, incidents_data: list, weat
     workflows = []
     
     # 1. Check for high density zones (Predictive Bottlenecks)
-    high_density_zones = [loc["name"] for loc in locations_data if loc["crowd_level"] == "high"]
+    high_density_zones = sorted(list(set(loc["name"] for loc in locations_data if loc["crowd_level"] == "high")))
     if high_density_zones:
         problems.append(f"Imminent gridlock warning at {', '.join(high_density_zones)}. Inflow rate exceeds exit corridor capacity.")
         actions.append(f"Deploy volunteer teams immediately to pre-routing checkpoints 50m upstream of {', '.join(high_density_zones)} to divert fans.")
         workflows.append(f"Automated System Action: Diverted transit bus drop-offs from West Gate to East Gate hubs.")
 
     # 2. Check for active medical/security incidents
-    active_meds = [inc["location"] for inc in incidents_data if inc["category"] == "medical" and inc["status"] == "open"]
+    active_meds = sorted(list(set(inc["location"] for inc in incidents_data if inc["category"] == "medical" and inc["status"] == "open")))
     if active_meds:
         problems.append(f"Elevated stress and crowd slowdowns near Section {', '.join(active_meds)} due to active medical triaging.")
         actions.append(f"Direct standby volunteers to form a safety perimeter around the medical zone in Section {', '.join(active_meds)} to keep corridors clear.")

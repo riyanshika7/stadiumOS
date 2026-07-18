@@ -664,5 +664,38 @@ def test_vision_ticket_genai_coverage():
         assert res["is_valid"] is True
 
 
+def test_mission_commander_endpoint():
+    with TestClient(app) as client:
+        # Test simulated commander endpoint
+        response = client.post(
+            "/api/jury/evaluate" if False else "/api/mission-commander",
+            json={"situation": "Gate 4 is overcrowded"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "situation_summary" in data
+        assert "ai_reasoning" in data
+        assert "risk_level" in data
+        assert "confidence_score" in data
+        assert len(data["recommendations"]) > 0
+        assert len(data["timeline"]) > 0
+
+        # Test with simulator off (mocking Gemini response)
+        mock_response = MagicMock()
+        mock_response.text = '{"situation_summary": "Grease Fire", "ai_reasoning": "Smoke detector", "risk_level": "Critical", "affected_zones": ["Concession North"], "fans_impacted": 500, "accessibility_impact": "Elevator reserved", "medical_impact": "Smoke inhalation", "security_impact": "Evacuation", "transportation_impact": "None", "predicted_resolution_time": "10 mins", "confidence_score": 99.5, "recommendations": [{"action": "Evacuate Section", "why": "Smoke"}], "timeline": ["T+0: alarm"]}'
+        
+        with patch("google.genai.Client") as mock_client_class:
+            mock_client = mock_client_class.return_value
+            mock_client.models.generate_content.return_value = mock_response
+            
+            with patch("backend.app.agents.mission_commander.USE_SIMULATOR", False):
+                response2 = client.post("/api/mission-commander", json={"situation": "Fire alarm triggered"})
+                assert response2.status_code == 200
+                data2 = response2.json()
+                assert data2["situation_summary"] == "Grease Fire"
+                assert data2["risk_level"] == "Critical"
+
+
+
 
 

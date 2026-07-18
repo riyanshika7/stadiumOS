@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Compass, Accessibility } from 'lucide-react';
+import { Compass, Accessibility, Info, HeartHandshake } from 'lucide-react';
 import { API_BASE_URL } from '../constants';
 import { useInclusiveMode } from '../hooks/useInclusiveMode';
 import StadiumCanvasMap from './StadiumCanvasMap';

@@ -292,7 +292,7 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
         <>
           <Line points={emergencyPath1} color="#ef4444" lineWidth={3} />
           <Line points={emergencyPath2} color="#f59e0b" lineWidth={3} />
-          <Html position={[0, 2.0, -2]} distanceFactor={8} zIndexRange={[100, 0]}>
+          <Html position={[0, 2.0, -2]} distanceFactor={8} zIndexRange={[100, 0]} className="html-route-bypass-label">
             <div className="px-2 py-1 bg-red-950/80 border border-red-500/50 rounded text-[9px] font-bold text-red-400 whitespace-nowrap shadow-lg">
               ⚠️ ROUTE BYPASS ACTIVE
             </div>
@@ -381,7 +381,7 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
               <sphereGeometry args={[0.08, 16, 16]} />
               <meshBasicMaterial color={node.color} />
             </mesh>
-            <Html position={[0, 0.4, 0]} distanceFactor={8} center zIndexRange={[100, 0]}>
+            <Html position={[0, 0.4, 0]} distanceFactor={8} center zIndexRange={[100, 0]} className="html-stadium-marker-label">
               <div
                 className="px-2 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wider whitespace-nowrap shadow-lg transition-all duration-200 cursor-pointer pointer-events-auto"
                 style={{

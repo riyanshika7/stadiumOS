@@ -65,17 +65,23 @@ export default function MatchdayClock() {
     return () => clearInterval(timer);
   }, []);
 
+  const showMatchStatus = matchStatusText && !matchStatusText.startsWith('T-MINUS');
+
   return (
     <div className="matchday-scoreboard-clock" aria-label="Matchday Scoreboard Clock">
       <div className="clock-local">
         <Clock size={14} className="text-amber" />
         <span className="font-mono text-amber">{localTime || '00:00:00'}</span>
       </div>
-      <div className="clock-separator">|</div>
-      <div className="clock-match-status">
-        <span className={`status-pulse-dot ${isLive ? 'live-match' : 'pre-match'}`}></span>
-        <span className="font-mono match-countdown">{matchStatusText || 'T-MINUS 00:00:00'}</span>
-      </div>
+      {showMatchStatus && (
+        <>
+          <div className="clock-separator">|</div>
+          <div className="clock-match-status">
+            <span className={`status-pulse-dot ${isLive ? 'live-match' : 'pre-match'}`}></span>
+            <span className="font-mono match-countdown">{matchStatusText}</span>
+          </div>
+        </>
+      )}
     </div>
   );
 }
