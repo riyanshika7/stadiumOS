@@ -399,7 +399,7 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick, activeLa
       </points>
 
       {/* Volunteer position indicators with pulsing beacon rings */}
-      {activeLayers.volunteers && volunteerPositions.map((v, idx) => {
+      {activeLayers.volunteers !== false && volunteerPositions.map((v, idx) => {
         const x = Math.cos(currentTimeRef.current * v.speed + v.baseAngle) * v.radius;
         const z = Math.sin(currentTimeRef.current * v.speed + v.baseAngle) * v.radius;
         return (
