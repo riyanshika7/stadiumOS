@@ -98,14 +98,23 @@ def global_exception_handler(request, exc):
     )
 
 # Enable CORS for frontend web integration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+origins_str = os.environ.get("ALLOWED_ORIGINS", "")
+if origins_str:
+    allowed_origins = [o.strip() for o in origins_str.split(",") if o.strip()]
+else:
+    allowed_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
-    ],
+    ]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_origin_regex="https://.*\\.onrender\\.com|https://.*\\.vercel\\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -703,6 +712,8 @@ def run_mission_commander(payload: schemas.MissionCommanderRequest):
 landing_dir = "landing"
 if os.path.exists("frontend/dist") and os.path.isdir("frontend/dist"):
     landing_dir = "frontend/dist"
+elif os.path.exists("../frontend/dist") and os.path.isdir("../frontend/dist"):
+    landing_dir = "../frontend/dist"
 elif os.path.exists("../landing") and os.path.isdir("../landing"):
     landing_dir = "../landing"
 
