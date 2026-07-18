@@ -245,9 +245,23 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick, activeLa
       {/* Ground plane */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.48, 0]}>
         <planeGeometry args={[4.2, 2.8]} />
-        <meshBasicMaterial color="#08281a" transparent opacity={0.6} />
+        <meshBasicMaterial color="#02081c" transparent opacity={0.8} />
       </mesh>
-      <Line points={[[-2.1, -0.47, -1.4], [2.1, -0.47, -1.4], [2.1, -0.47, 1.4], [-2.1, -0.47, 1.4], [-2.1, -0.47, -1.4]]} color="#22c55e" lineWidth={1.5} />
+      
+      {/* Glowing Neon Blue Football Field Grid Lines */}
+      <Line points={[[-2.1, -0.47, -1.4], [2.1, -0.47, -1.4], [2.1, -0.47, 1.4], [-2.1, -0.47, 1.4], [-2.1, -0.47, -1.4]]} color="#00f0ff" lineWidth={2} />
+      <Line points={[[0, -0.47, -1.4], [0, -0.47, 1.4]]} color="#00f0ff" lineWidth={1.5} />
+      <Line
+        points={Array.from({ length: 33 }).map((_, i) => [
+          Math.cos((i / 32) * Math.PI * 2) * 0.45,
+          -0.47,
+          Math.sin((i / 32) * Math.PI * 2) * 0.45
+        ])}
+        color="#00f0ff"
+        lineWidth={1.5}
+      />
+      <Line points={[[-2.1, -0.47, -0.75], [-1.5, -0.47, -0.75], [-1.5, -0.47, 0.75], [-2.1, -0.47, 0.75]]} color="#00f0ff" lineWidth={1.5} />
+      <Line points={[[2.1, -0.47, -0.75], [1.5, -0.47, -0.75], [1.5, -0.47, 0.75], [2.1, -0.47, 0.75]]} color="#00f0ff" lineWidth={1.5} />
 
       {/* Data ring — rotating information ring */}
       <group ref={dataRingRef}>
@@ -324,8 +338,8 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick, activeLa
         </points>
       )}
 
-      {/* Emergency Rerouting paths (rendered when accessibility OR scroll is active) */}
-      {(activeLayers.accessibility || scrollProgress > 0.4) && (
+      {/* Emergency Rerouting paths / Accessibility routes */}
+      {activeLayers.accessibility ? (
         <>
           <Line points={emergencyPath1} color="#00f0ff" lineWidth={3.5} />
           <Line points={emergencyPath2} color="#7C5CFF" lineWidth={3.5} />
@@ -335,6 +349,18 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick, activeLa
             </div>
           </Html>
         </>
+      ) : (
+        scrollProgress > 0.4 && (
+          <>
+            <Line points={emergencyPath1} color="#ef4444" lineWidth={3} />
+            <Line points={emergencyPath2} color="#f59e0b" lineWidth={3} />
+            <Html position={[0, 2.0, -2]} distanceFactor={8} zIndexRange={[100, 0]} className="html-route-bypass-label">
+              <div className="px-2 py-1 bg-red-950/80 border border-red-500/50 rounded text-[9px] font-bold text-red-400 whitespace-nowrap shadow-lg">
+                ⚠️ ROUTE BYPASS ACTIVE
+              </div>
+            </Html>
+          </>
+        )
       )}
 
       {/* Emergency Evacuation Exclusion Dome (grease fire Stand North) */}

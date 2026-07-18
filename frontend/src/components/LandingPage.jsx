@@ -271,7 +271,7 @@ export default function LandingPage({ onEnterConsole }) {
                 transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
               />
               <h1 style={{ fontSize: '1.8rem', fontWeight: '900', letterSpacing: '0.2em', background: 'linear-gradient(90deg, #46F3FF, #7C5CFF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
-                STADIUMOS
+                ARENAOS
               </h1>
             </div>
 
@@ -335,77 +335,119 @@ export default function LandingPage({ onEnterConsole }) {
         }}
       />
 
+      {/* Floating Glass Cards */}
+      <motion.div 
+        className="floating-glass-card"
+        style={{ position: 'absolute', top: '18%', left: '4%', zIndex: 50, pointerEvents: 'auto' }}
+        animate={{ y: [0, -12, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="floating-indicator bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+        <span>CROWD RISK: LOW</span>
+      </motion.div>
+
+      <motion.div 
+        className="floating-glass-card"
+        style={{ position: 'absolute', top: '22%', right: '4%', zIndex: 50, pointerEvents: 'auto' }}
+        animate={{ y: [0, -15, 0] }}
+        transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="floating-indicator bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse"></span>
+        <span>GATE 5: CONGESTION</span>
+      </motion.div>
+
+      <motion.div 
+        className="floating-glass-card"
+        style={{ position: 'absolute', top: '48%', left: '3%', zIndex: 50, pointerEvents: 'auto' }}
+        animate={{ y: [0, -10, 0] }}
+        transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="floating-indicator bg-cyan-500 shadow-[0_0_8px_#06b6d4]"></span>
+        <span>VOLUNTEER: NEARBY</span>
+      </motion.div>
+
+      <motion.div 
+        className="floating-glass-card"
+        style={{ position: 'absolute', top: '52%', right: '3%', zIndex: 50, pointerEvents: 'auto' }}
+        animate={{ y: [0, -18, 0] }}
+        transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="floating-indicator bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse"></span>
+        <span>⚠️ MEDICAL ALERT (SEC-2)</span>
+      </motion.div>
+
+      <motion.div 
+        className="floating-glass-card"
+        style={{ position: 'absolute', bottom: '15%', left: '6%', zIndex: 50, pointerEvents: 'auto' }}
+        animate={{ y: [0, -14, 0] }}
+        transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="floating-indicator bg-indigo-500 shadow-[0_0_8px_#6366f1]"></span>
+        <span>TRANSLATION: ACTIVE</span>
+      </motion.div>
+
+      <motion.div 
+        className="floating-glass-card"
+        style={{ position: 'absolute', bottom: '18%', right: '6%', zIndex: 50, pointerEvents: 'auto' }}
+        animate={{ y: [0, -11, 0] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="floating-indicator bg-purple-500 shadow-[0_0_8px_#a855f7]"></span>
+        <span>AI PREDICTION: NOMINAL</span>
+      </motion.div>
+
       {/* Premium Apple Navigation */}
       <nav className={`landing-nav ${isNavScrolled ? 'scrolled' : ''}`}>
         <div className="landing-logo">
-          <img src="/stadiumos.png" alt="StadiumOS Logo" />
-          <span>StadiumOS</span>
+          <img src="/stadiumos.png" alt="ArenaOS Logo" />
+          <span>ArenaOS</span>
         </div>
         <div className="landing-nav-links">
           <button 
             type="button"
-            className={`landing-nav-link ${activeSection === 'hero-anchor' && !activeDropdown ? 'active' : ''}`} 
-            onClick={() => { setActiveDropdown(null); scrollToSection('hero-anchor'); }}
-            aria-label="Scroll to home section"
+            className="landing-nav-link" 
+            onClick={() => scrollToSection('features-section')}
           >
-            System Home
+            Features
           </button>
           <button 
             type="button"
-            className={`landing-nav-link ${activeDropdown === 'swarm' ? 'active' : ''}`} 
-            onClick={() => setActiveDropdown(prev => prev === 'swarm' ? null : 'swarm')}
-            aria-expanded={activeDropdown === 'swarm'}
-            aria-controls="swarm-dropdown-panel"
-            aria-label="Toggle AI Swarm operational panel"
+            className="landing-nav-link" 
+            onClick={() => scrollToSection('digital-twin-details')}
           >
-            AI Swarm
+            Technology
           </button>
           <button 
             type="button"
-            className={`landing-nav-link ${activeDropdown === 'twin' ? 'active' : ''}`} 
-            onClick={() => setActiveDropdown(prev => prev === 'twin' ? null : 'twin')}
-            aria-expanded={activeDropdown === 'twin'}
-            aria-controls="twin-dropdown-panel"
-            aria-label="Toggle Interactive Twin controls panel"
+            className="landing-nav-link" 
+            onClick={() => scrollToSection('digital-twin-details')}
           >
-            Interactive Twin
+            Architecture
           </button>
           <button 
             type="button"
-            className={`landing-nav-link ${activeDropdown === 'ops' ? 'active' : ''}`} 
-            onClick={() => setActiveDropdown(prev => prev === 'ops' ? null : 'ops')}
-            aria-expanded={activeDropdown === 'ops'}
-            aria-controls="ops-dropdown-panel"
-            aria-label="Toggle Operational Modules panel"
+            className="landing-nav-link" 
+            onClick={() => scrollToSection('sandbox-console')}
           >
-            Operational Modules
+            Demo
           </button>
           <button 
-            className="btn-secondary-neon"
-            onClick={() => {
-              caches.keys().then((names) => {
-                for (let name of names) {
-                  caches.delete(name);
-                }
-              });
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then((regs) => {
-                  for (let reg of regs) {
-                    reg.unregister();
-                  }
-                });
-              }
-              setTimeout(() => {
-                window.location.reload(true);
-              }, 400);
-            }}
-            style={{ padding: '0.45rem 1rem', fontSize: '0.75rem', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#ef4444', marginRight: '0.5rem' }}
-            title="Clears all service worker caches and performs a hard reload"
+            type="button"
+            className="landing-nav-link" 
+            onClick={() => scrollToSection('features-section')}
           >
-            🔄 Reset Cache
+            About
           </button>
+          <a 
+            href="https://github.com/riyanshika7/stadiumOS" 
+            target="_blank"
+            rel="noreferrer"
+            className="landing-nav-link"
+          >
+            GitHub
+          </a>
           <button className="btn-neon-cta" onClick={(e) => { handleButtonRipple(e); setTimeout(onEnterConsole, 300); }}>
-            Enter Console <Zap size={14} style={{ fill: '#ffffff' }} />
+            Launch AI <Zap size={14} style={{ fill: '#ffffff' }} />
           </button>
         </div>
       </nav>
@@ -762,12 +804,12 @@ export default function LandingPage({ onEnterConsole }) {
           </motion.div>
           
           <motion.h1 className="hero-main-title" variants={itemVariants}>
-            AI Operating System <br />
+            The AI Operating System <br />
             <span className="hero-gradient-text">For World-Class Stadiums</span>
           </motion.h1>
 
           <motion.p className="hero-sub-para min-h-[48px]" variants={itemVariants}>
-            <TypingText text="Empowering volunteers and organizers with real-time intelligence, predictive operations, and AI-driven decision support for safer, smarter events." />
+            <TypingText text="ArenaOS transforms FIFA World Cup stadiums into intelligent digital ecosystems by coordinating volunteers, organizers, and operations through real-time Generative AI." />
           </motion.p>
           
           {/* Flagship Cinematic CTA Buttons with Hover Magnetic Scale */}
@@ -779,41 +821,38 @@ export default function LandingPage({ onEnterConsole }) {
               whileTap={{ scale: 0.98 }}
               onClick={(e) => { handleButtonRipple(e); setTimeout(onEnterConsole, 350); }}
             >
-              <Play size={18} fill="#ffffff" /> Launch Mission Control
+              <Play size={18} fill="#ffffff" /> Try Live Demo
             </motion.button>
 
             <motion.button 
               className="btn-secondary-neon" 
               whileHover={{ scale: 1.05, borderColor: 'rgba(70, 243, 255, 0.6)', background: 'rgba(255,255,255,0.06)' }}
               whileTap={{ scale: 0.98 }}
-              onClick={(e) => { handleButtonRipple(e); scrollToSection('digital-twin-details'); }}
+              onClick={(e) => { handleButtonRipple(e); scrollToSection('sandbox-console'); }}
             >
-              <Gamepad2 size={18} /> Explore Digital Twin
+              <Gamepad2 size={18} /> Watch AI Simulation
             </motion.button>
-
-            <motion.a 
-              href="https://github.com/riyanshika7/stadiumOS"
-              target="_blank"
-              rel="noreferrer"
-              className="btn-secondary-neon"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              style={{ padding: '0.95rem 1.5rem' }}
-            >
-              <Github size={18} /> GitHub
-            </motion.a>
-
-            <motion.button 
-              className="btn-secondary-neon" 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              style={{ padding: '0.95rem 1.5rem' }}
-              onClick={() => scrollToSection('sandbox-console')}
-            >
-              <ExternalLink size={18} /> Live Demo
-            </motion.button>
-
           </motion.div>
+        </motion.div>
+
+        {/* Bouncing Glowing Football Scroll Indicator */}
+        <motion.div 
+          className="scroll-hint-bar flex flex-col items-center gap-2" 
+          onClick={() => scrollToSection('digital-twin-details')}
+          animate={{ y: [0, -12, 0] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          style={{ cursor: 'pointer', pointerEvents: 'auto', position: 'absolute', bottom: '2.5rem' }}
+        >
+          <span className="text-[9px] tracking-[0.2em] text-slate-400 font-extrabold uppercase">SCROLL FOR SIMULATION</span>
+          <div className="football-glow-container">
+            <svg className="football-svg" viewBox="0 0 24 24" fill="none" stroke="#46F3FF" strokeWidth="1.5" style={{ width: '22px', height: '22px', filter: 'drop-shadow(0 0 8px rgba(70,243,255,0.8))' }}>
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a10 10 0 0 0-4 1.5L12 8.5l4-5A10 10 0 0 0 12 2Z" />
+              <path d="M16.5 3.5 12 8.5v5.5l5.5 3.5A10 10 0 0 0 22 12a10 10 0 0 0-5.5-8.5Z" />
+              <path d="M17.5 17.5 12 14l-5.5 3.5A10 10 0 0 0 12 22a10 10 0 0 0 5.5-4.5Z" />
+              <path d="M6.5 17.5 12 14V8.5L6.5 3.5A10 10 0 0 0 2 12a10 10 0 0 0 4.5 5.5Z" />
+            </svg>
+          </div>
         </motion.div>
       </div>
 
@@ -857,7 +896,7 @@ export default function LandingPage({ onEnterConsole }) {
       <FeaturesSection />
 
       <footer className="landing-footer">
-        <div>© 2026 StadiumOS. Built for the FIFA World Cup 2026 PromptWars.</div>
+        <div>© 2026 ArenaOS. Built for the FIFA World Cup 2026 PromptWars.</div>
       </footer>
     </div>
   );
