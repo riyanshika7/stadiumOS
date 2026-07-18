@@ -12,7 +12,7 @@ function isWebGLAvailable() {
   }
 }
 
-export default function DigitalTwinStadium({ scrollProgress, activeNode, onNodeClick, isContained = false }) {
+export default function DigitalTwinStadium({ scrollProgress, activeNode, onNodeClick, isContained = false, activeLayers = {} }) {
   const [hasWebGL, setHasWebGL] = useState(true);
 
   useEffect(() => {
@@ -56,6 +56,7 @@ export default function DigitalTwinStadium({ scrollProgress, activeNode, onNodeC
           scrollProgress={scrollProgress} 
           activeNode={activeNode} 
           onNodeClick={onNodeClick} 
+          activeLayers={activeLayers}
         />
       </Canvas>
     </div>

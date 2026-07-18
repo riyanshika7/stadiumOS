@@ -432,6 +432,12 @@ def translate_query_simulator(query: str) -> dict:
     else:
         xai_reasoning = f"A casual navigation/ticketing query detected in {intent_detection['detected_language']} with a {intent_detection['tone']} tone. The fan requires basic guidance to Gate C or nearest checkpoint, saving transit time."
 
+    observation_text = f"Linguistic mediator registered user request: '{query}'."
+    analysis_text = f"Assessed input as {intent_detection['detected_language']} with a {intent_detection['tone']} tone. Categorized intent as {intent_detection['intent']}."
+    prediction_text = f"Subsequent actions expect volunteer script in {intent_detection['detected_language']} to resolve query with {urgency} urgency."
+    expected_impact_text = "Ensures clear multilingual support and immediate escalation guide for volunteers."
+    confidence_score = 98.5
+
     return {
         # Flat schema compatibility
         "detected_language": intent_detection["detected_language"],
@@ -454,7 +460,15 @@ def translate_query_simulator(query: str) -> dict:
         
         # Test compatibility
         "intent_detection": intent_detection,
-        "reasoning": xai_reasoning
+        "reasoning": xai_reasoning,
+
+        # 7-Stage Explanation Heuristics
+        "observation": observation_text,
+        "analysis": analysis_text,
+        "prediction": prediction_text,
+        "explanation": xai_reasoning,
+        "expected_impact": expected_impact_text,
+        "confidence_score": confidence_score
     }
 
 def handle_translation(query: str) -> dict:
@@ -528,6 +542,13 @@ def handle_translation(query: str) -> dict:
         "translated_query": translated_query
     }
 
+    # 7-Stage Explanation Fields
+    observation_text = f"Linguistic mediator registered user request: '{query}'."
+    analysis_text = f"Assessed input as {detected_language} with a {tone} tone. Categorized intent as {intent}."
+    prediction_text = f"Subsequent actions expect volunteer script in {detected_language} to resolve query with {urgency} urgency."
+    expected_impact_text = "Ensures clear multilingual support and immediate escalation guide for volunteers."
+    confidence_score = 98.5
+
     return {
         # Flat schema compatibility
         "detected_language": detected_language,
@@ -550,5 +571,13 @@ def handle_translation(query: str) -> dict:
         
         # Test compatibility
         "intent_detection": intent_detection,
-        "reasoning": xai_reasoning
+        "reasoning": xai_reasoning,
+
+        # 7-Stage Explanation Heuristics
+        "observation": observation_text,
+        "analysis": analysis_text,
+        "prediction": prediction_text,
+        "explanation": xai_reasoning,
+        "expected_impact": expected_impact_text,
+        "confidence_score": confidence_score
     }

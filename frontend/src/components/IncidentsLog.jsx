@@ -33,9 +33,26 @@ export default function IncidentsLog({
       
       <div className="incident-list" style={{ flex: 1 }}>
         {filteredIncidents.length === 0 ? (
-          <p className="incident-empty">
-            No {incidentViewTab === 'active' ? 'active' : 'resolved'} incidents.
-          </p>
+          <div className="incident-empty-container" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem 1rem',
+            textAlign: 'center',
+            border: '1.5px dashed rgba(0, 240, 255, 0.15)',
+            borderRadius: '12px',
+            background: 'rgba(255, 255, 255, 0.01)',
+            color: 'var(--text-muted)'
+          }}>
+            <span style={{ fontSize: '2rem', marginBottom: '0.5rem', animation: 'pulse 2s infinite' }}>🛡️</span>
+            <strong style={{ fontSize: '0.8rem', color: '#ffffff', display: 'block', marginBottom: '0.2rem' }}>
+              All Clear in Concourse West
+            </strong>
+            <p style={{ fontSize: '0.72rem', margin: 0, lineHeight: '1.4' }}>
+              No {incidentViewTab === 'active' ? 'active' : 'resolved'} incidents logged. Live telemetry reports nominal flow.
+            </p>
+          </div>
         ) : (
           filteredIncidents.map((inc) => (
             <div key={inc.id} className="incident-card incident-card-content">

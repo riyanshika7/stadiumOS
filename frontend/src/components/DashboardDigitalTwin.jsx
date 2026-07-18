@@ -14,6 +14,24 @@ const ZONE_DETAILS = {
 
 export default function DashboardDigitalTwin({ activeNode, onNodeSelect, onTriggerSimulation, onSetRouteStart, onSetRouteDest }) {
   const selectedDetails = activeNode ? ZONE_DETAILS[activeNode.name] : null;
+  const [activeLayers, setActiveLayers] = useState({
+    heatmap: true,
+    volunteers: true,
+    incidents: true,
+    emergency: true,
+    parking: false,
+    transit: false,
+    weather: false,
+    accessibility: false,
+    aiRecommend: true
+  });
+
+  const toggleLayer = (layerKey) => {
+    setActiveLayers(prev => ({
+      ...prev,
+      [layerKey]: !prev[layerKey]
+    }));
+  };
 
   return (
     <div className="glass-card dtwin-container">
@@ -33,12 +51,102 @@ export default function DashboardDigitalTwin({ activeNode, onNodeSelect, onTrigg
       </div>
 
       <div className="dtwin-canvas-area">
+        {/* Floating Cockpit Layers Panel */}
+        <div className="dtwin-layers-panel" aria-label="Digital Twin Overlay Layers">
+          <div className="dtwin-layers-title">
+            <span style={{ fontSize: '0.9rem' }}>🎛️</span>
+            <span>Cockpit Layers</span>
+          </div>
+          
+          <button 
+            onClick={() => toggleLayer('heatmap')}
+            className={`dtwin-layer-item ${activeLayers.heatmap ? 'active' : ''}`}
+            aria-pressed={activeLayers.heatmap}
+          >
+            <span>🗺️ Crowd Heatmap</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.heatmap ? 'active' : ''}`} />
+          </button>
+          
+          <button 
+            onClick={() => toggleLayer('volunteers')}
+            className={`dtwin-layer-item ${activeLayers.volunteers ? 'active' : ''}`}
+            aria-pressed={activeLayers.volunteers}
+          >
+            <span>🚶 Volunteer Beacons</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.volunteers ? 'active' : ''}`} />
+          </button>
+          
+          <button 
+            onClick={() => toggleLayer('incidents')}
+            className={`dtwin-layer-item ${activeLayers.incidents ? 'active' : ''}`}
+            aria-pressed={activeLayers.incidents}
+          >
+            <span>⚠️ Incident Markers</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.incidents ? 'active' : ''}`} />
+          </button>
+          
+          <button 
+            onClick={() => toggleLayer('emergency')}
+            className={`dtwin-layer-item ${activeLayers.emergency ? 'active' : ''}`}
+            aria-pressed={activeLayers.emergency}
+          >
+            <span>🚨 Evacuation Zones</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.emergency ? 'active' : ''}`} />
+          </button>
+          
+          <button 
+            onClick={() => toggleLayer('parking')}
+            className={`dtwin-layer-item ${activeLayers.parking ? 'active' : ''}`}
+            aria-pressed={activeLayers.parking}
+          >
+            <span>🚗 Parking Overlays</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.parking ? 'active' : ''}`} />
+          </button>
+          
+          <button 
+            onClick={() => toggleLayer('transit')}
+            className={`dtwin-layer-item ${activeLayers.transit ? 'active' : ''}`}
+            aria-pressed={activeLayers.transit}
+          >
+            <span>🚊 Metro Feeds</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.transit ? 'active' : ''}`} />
+          </button>
+          
+          <button 
+            onClick={() => toggleLayer('weather')}
+            className={`dtwin-layer-item ${activeLayers.weather ? 'active' : ''}`}
+            aria-pressed={activeLayers.weather}
+          >
+            <span>🌧️ Live Rain Overlay</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.weather ? 'active' : ''}`} />
+          </button>
+          
+          <button 
+            onClick={() => toggleLayer('accessibility')}
+            className={`dtwin-layer-item ${activeLayers.accessibility ? 'active' : ''}`}
+            aria-pressed={activeLayers.accessibility}
+          >
+            <span>♿ Accessible Routes</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.accessibility ? 'active' : ''}`} />
+          </button>
+          
+          <button 
+            onClick={() => toggleLayer('aiRecommend')}
+            className={`dtwin-layer-item ${activeLayers.aiRecommend ? 'active' : ''}`}
+            aria-pressed={activeLayers.aiRecommend}
+          >
+            <span>🤖 AI Swarm Tips</span>
+            <div className={`dtwin-layer-indicator ${activeLayers.aiRecommend ? 'active' : ''}`} />
+          </button>
+        </div>
+
         <React.Suspense fallback={<div className="dtwin-canvas-fallback">Initializing 3D Digital Twin...</div>}>
           <DigitalTwinStadium 
             scrollProgress={0} 
             activeNode={activeNode} 
             onNodeClick={onNodeSelect}
             isContained={true}
+            activeLayers={activeLayers}
           />
         </React.Suspense>
 

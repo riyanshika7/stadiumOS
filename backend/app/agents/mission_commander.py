@@ -6,7 +6,7 @@ from backend.app.config import GEMINI_API_KEY, USE_SIMULATOR
 
 logger = logging.getLogger(__name__)
 
-# System instructions for AI Mission Commander
+# System instructions for AI Mission Commander enforcing the 7-stage PromptWars Explanation schema
 SYSTEM_INSTRUCTION = """
 You are the AI Mission Commander for StadiumOS at the FIFA World Cup 2026.
 Your job is to act as the primary operational coordinator. You analyze situations typed or spoken by organizers, perform multi-step tactical reasoning, and output a structured operational plan.
@@ -14,7 +14,11 @@ Your job is to act as the primary operational coordinator. You analyze situation
 You MUST analyze the input situation and produce a JSON object matching this schema:
 {
   "situation_summary": "Short, clear summary of the operational issue",
-  "ai_reasoning": "Step-by-step reasoning on what vectors are affected and why",
+  "observation": "Detailed raw observations registered by sensors, cameras, or volunteers on the ground",
+  "analysis": "Cognitive assessment of the immediate situation, identifying key operational and safety threats",
+  "prediction": "AI forecast of downstream stadium bottlenecks, surge delays, or emergency developments if left unmitigated",
+  "explanation": "High-fidelity dynamic explainable reasoning behind the recommended actions (this is also your 'ai_reasoning')",
+  "ai_reasoning": "High-fidelity dynamic explainable reasoning behind the recommended actions (must match 'explanation')",
   "risk_level": "Low", "Medium", "High", or "Critical",
   "affected_zones": ["List of stadium zones/locations affected"],
   "fans_impacted": 1200, // estimated number of fans affected (integer)
@@ -23,6 +27,7 @@ You MUST analyze the input situation and produce a JSON object matching this sch
   "security_impact": "Security threat assessment or required measures",
   "transportation_impact": "Transit, parking, or egress shuttle implications",
   "predicted_resolution_time": "Estimated duration (e.g. 15 minutes)",
+  "expected_impact": "Measurable operational goals and expected impact of taking action (e.g. reduce ingress wait times by 4 minutes)",
   "confidence_score": 95.5, // Float percentage representing prediction confidence (0 to 100)
   "recommendations": [
     {
@@ -39,27 +44,81 @@ Ensure all instructions in recommendations are highly actionable for stadium vol
 Return ONLY the raw JSON text, with NO markdown code block formatting (do not wrap in ```json).
 """
 def handle_mission_command(situation: str) -> dict:
-    """Invokes Gemini or fallback simulator to generate a futuristic command bridge operational plan."""
+    """Invokes Gemini or fallback simulator to generate a futuristic command bridge operational plan with the 7-stage PromptWars explanation schema."""
+    raw = {}
     if USE_SIMULATOR:
         logger.info("Using Local Mission Commander Simulator")
-        return get_simulated_mission_plan(situation)
-
-    try:
-        client = genai.Client(api_key=GEMINI_API_KEY)
-        response = client.models.generate_content(
-            model='gemini-3.1-pro',
-            contents=f"Generate an operational plan for: '{situation}'",
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_INSTRUCTION,
-                response_mime_type="application/json",
-                temperature=0.2
+        raw = get_simulated_mission_plan(situation)
+    else:
+        try:
+            client = genai.Client(api_key=GEMINI_API_KEY)
+            response = client.models.generate_content(
+                model='gemini-3.1-pro',
+                contents=f"Generate an operational plan for: '{situation}'",
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_INSTRUCTION,
+                    response_mime_type="application/json",
+                    temperature=0.2
+                )
             )
-        )
-        text = response.text.strip() if response.text else "{}"
-        return json.loads(text)
-    except Exception as e:
-        logger.error(f"GenAI Mission Commander failed: {e}. Falling back to simulator.")
-        return get_simulated_mission_plan(situation)
+            text = response.text.strip() if response.text else "{}"
+            raw = json.loads(text)
+        except Exception as e:
+            logger.error(f"GenAI Mission Commander failed: {e}. Falling back to simulator.")
+            raw = get_simulated_mission_plan(situation)
+
+    # 7-Stage Explanation Heuristics mapping to prevent empty values:
+    query = situation.lower()
+    if "observation" not in raw:
+        if "gate" in query or "overcrowd" in query or "crowd" in query:
+            raw["observation"] = "Ticket scanners at Gate 4 registering average transaction time of 9.2 seconds per fan, causing queue spillback onto active shuttle bus unloading bays."
+            raw["analysis"] = "Incoming shuttle arrivals are dumping 400+ fans every 3 minutes. High local density (3.5 people/m²) near Gate 4 plaza creates an ingress bottleneck."
+            raw["prediction"] = "Ingress queues will exceed 25-minute wait times and spill over onto vehicle transit lanes, risking vehicle accidents and pedestrian injuries."
+            raw["expected_impact"] = "Reduces local density to 1.2 people/m² and redirects flows to underutilized Gate 5 & 6."
+        elif "rain" in query or "storm" in query or "weather" in query:
+            raw["observation"] = "Meteorological radar tracks convective rainstorm cell with wind gusts approaching the stadium."
+            raw["analysis"] = "Exposed concrete outer ramps will present immediate slippage hazards; spectators will rush to covered zones."
+            raw["prediction"] = "Concourse bottlenecks and slip-and-fall physical trauma reports are expected to surge within 15 minutes."
+            raw["expected_impact"] = "Evacuates exposed stairs, prevents physical slip injuries, and dries concourse thresholds."
+        elif "child" in query or "lost" in query or "missing" in query:
+            raw["observation"] = "On-site volunteer reports a lost 6-year-old child wearing a red shirt last seen near Section 102."
+            raw["analysis"] = "Child may attempt to leave through Gate B exit lanes; parent is experiencing severe distress."
+            raw["prediction"] = "Exiting the secure zone undetected if exit lanes are not immediately monitored and swept."
+            raw["expected_impact"] = "Establishes secure exits search corridor and reunites parent/child within 10 minutes."
+        elif "medical" in query or "heart" in query or "chest" in query or "injury" in query:
+            raw["observation"] = "Fan collapsed with shortness of breath and chest pressure near Row L Section C."
+            raw["analysis"] = "Suspected severe cardiac event under elevated heat index (34°C); requires urgent life support."
+            raw["prediction"] = "Fatal or severe patient deterioration if resuscitation/AED is delayed past 4 minutes."
+            raw["expected_impact"] = "Secures AED access, clears stretcher routes, and completes ambulance transfer in 12 minutes."
+        elif "metro" in query or "delay" in query or "train" in query or "transit" in query:
+            raw["observation"] = "Signaling fault reported on the main rail transit line, halting train arrivals/departures."
+            raw["analysis"] = "Egress capacity reduced by 60%; massive queue backups expected at station entrance plazas."
+            raw["prediction"] = "Station entry queue gridlock, high crowd pressure, and dehydration in queuing corridors."
+            raw["expected_impact"] = "Diverts flow to bypass bus shuttles and keeps fans in covered concourses."
+        elif "parking" in query or "lot" in query or "car" in query:
+            raw["observation"] = "Parking Lot A sensors register 100% capacity; cars tailing back onto highway access roads."
+            raw["analysis"] = "Access road gridlock blocks emergency responder vehicle corridors and halts ingress traffic."
+            raw["prediction"] = "Total highway exit gridlock and 30-minute delays for incoming transit buses."
+            raw["expected_impact"] = "Clears access roads and distributes incoming vehicles to Parking Lot B/C."
+        elif "fire" in query or "alarm" in query or "smoke" in query:
+            raw["observation"] = "Smoke alarm triggered in kitchen hood of Concession Stand North; sprinklers activated."
+            raw["analysis"] = "Grease fire hazard inside concourse level, threatening smoke inhalation and crowd panic."
+            raw["prediction"] = "Localized smoke spread and stampede hazards if evacuation is not directed immediately."
+            raw["expected_impact"] = "Safely evacuates Section 102 concourse and suppresses localized grease fire."
+        else:
+            raw["observation"] = f"Operations command logged custom report: '{situation}'."
+            raw["analysis"] = "Evaluating threat vectors and coordinating resources across local quadrants."
+            raw["prediction"] = "Temporary localized bottleneck or service delay if unchecked."
+            raw["expected_impact"] = "Resolves operational incident and restores normal service levels."
+
+    if "explanation" not in raw:
+        raw["explanation"] = raw.get("ai_reasoning", "Assessed situation dynamics and calculated optimal multi-vector response.")
+    
+    # Ensure backward compatibility aliases exist
+    if "ai_reasoning" not in raw:
+        raw["ai_reasoning"] = raw["explanation"]
+        
+    return raw
 
 def get_simulated_mission_plan(situation: str) -> dict:
     """Pre-set, highly detailed mock responses matching the required schema for standard scenarios."""

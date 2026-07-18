@@ -8,18 +8,20 @@ function Translator() {
   const [queryText, setQueryText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   // De-escalation states
   const [isCoaching, setIsCoaching] = useState(false);
   const [deescalateResult, setDeescalateResult] = useState(null);
 
   const handleTranslate = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!queryText.trim()) return;
 
     setIsLoading(true);
     setResult(null);
     setDeescalateResult(null);
+    setError(null);
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/volunteer/translate`, {
@@ -27,10 +29,12 @@ function Translator() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: queryText }),
       });
+      if (!res.ok) throw new Error(`HTTP status ${res.status}`);
       const data = await res.json();
       setResult(data);
     } catch (err) {
       console.error(err);
+      setError('Network error: Translation service is currently unreachable.');
       setResult(null);
     } finally {
       setIsLoading(false);
@@ -98,6 +102,34 @@ function Translator() {
           {isLoading ? 'Translating...' : 'Translate'}
         </button>
       </form>
+
+      {/* Robust Error & Retry state */}
+      {error && (
+        <div className="glass-card fade-in" style={{ border: '1px solid rgba(239, 68, 68, 0.4)', padding: '0.85rem 1rem', background: 'rgba(239, 68, 68, 0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderRadius: '8px' }}>
+          <span style={{ fontSize: '0.8rem', color: '#f87171', fontWeight: 'bold' }}>❌ {error}</span>
+          <button 
+            type="button"
+            onClick={() => handleTranslate()} 
+            className="btn" 
+            style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem', background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)' }}
+          >
+            ↻ Retry translation
+          </button>
+        </div>
+      )}
+
+      {/* Robust Skeleton loading state */}
+      {isLoading && (
+        <div className="skeleton-loader fade-in" style={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            <div style={{ width: '150px', height: '14px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+            <div style={{ width: '60px', height: '14px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+          </div>
+          <div style={{ width: '100%', height: '35px', background: 'rgba(255,255,255,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+          <div style={{ width: '100%', height: '50px', background: 'rgba(255,255,255,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+          <div style={{ width: '100%', height: '30px', background: 'rgba(255,255,255,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+        </div>
+      )}
 
       {/* Translation Results Panel */}
       {result && (

@@ -192,3 +192,10 @@ class MissionCommanderResponse(BaseModel):
     confidence_score: float
     recommendations: List[RecommendationItem]
     timeline: List[str]
+
+    # 7-Stage explanation fields
+    observation: str = ""
+    analysis: str = ""
+    prediction: str = ""
+    explanation: str = ""
+    expected_impact: str = ""

@@ -144,8 +144,16 @@ function CctvMonitor() {
           )}
 
           {analysisError && (
-            <div style={{ color: 'var(--color-danger)', fontSize: '0.8rem', padding: '0.5rem' }}>
-              Error connecting to predictive triage service. Please try again.
+            <div style={{ color: 'var(--color-danger)', fontSize: '0.8rem', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <span>⚠️ Error connecting to predictive triage service.</span>
+              <button 
+                type="button"
+                onClick={() => runCctvAnalysis(activeScenario)} 
+                className="btn" 
+                style={{ fontSize: '0.75rem', padding: '0.3rem 0.5rem', alignSelf: 'flex-start', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#f87171' }}
+              >
+                ↻ Retry Feed Ingestion
+              </button>
             </div>
           )}
         </div>

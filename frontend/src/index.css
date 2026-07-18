@@ -2815,3 +2815,72 @@ body.high-glare-mode {
   animation: slideUp 0.3s ease-out;
 }
 
+/* 🏟️ 3D Digital Twin Operating Cockpit Layers */
+.dtwin-layers-panel {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+  width: 210px;
+  background: rgba(8, 12, 22, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 12px;
+  padding: 0.85rem;
+  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+.dtwin-layers-title {
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #00F0FF;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.dtwin-layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.dtwin-layer-item:hover {
+  background: rgba(0, 240, 255, 0.08);
+  color: #ffffff;
+}
+.dtwin-layer-item.active {
+  color: #ffffff;
+  background: rgba(0, 240, 255, 0.05);
+}
+.dtwin-layer-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 240, 255, 0.4);
+  transition: all 0.2s ease;
+  position: relative;
+}
+.dtwin-layer-indicator.active {
+  background: #00F0FF;
+  border-color: #00F0FF;
+  box-shadow: 0 0 10px #00F0FF;
+}
+
+

@@ -25,7 +25,14 @@ export default function PlaybookQuery({
           <Send size={12} />
         </button>
       </div>
-      {ragAnswer && (
+      {isQuerying && (
+        <div className="skeleton-loader" style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '4px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <div style={{ width: '45px', height: '10px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', animation: 'pulse 1.5s infinite' }} />
+          <div style={{ width: '100%', height: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: '3px', animation: 'pulse 1.5s infinite' }} />
+          <div style={{ width: '85%', height: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: '3px', animation: 'pulse 1.5s infinite' }} />
+        </div>
+      )}
+      {ragAnswer && !isQuerying && (
         <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-main)', lineHeight: '1.4' }}>
           <strong>Answer:</strong> {ragAnswer}
         </div>

@@ -6,7 +6,7 @@ import Firework from './Firework';
 import TelemetryHUD from './TelemetryHUD';
 import { STADIUM_MARKERS } from '../constants';
 
-export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
+export function StadiumScene({ scrollProgress, activeNode, onNodeClick, activeLayers = {} }) {
   const stadiumGroup = useRef();
   const droneRef1 = useRef();
   const droneRef2 = useRef();
@@ -18,10 +18,23 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
   const crowdRef = useRef();
   const dustRef = useRef();
   const dataRingRef = useRef();
+  const rainRef = useRef();
 
   const [hoveredNode, setHoveredNode] = useState(null);
   const lookTargetRef = useRef(new THREE.Vector3(0, 0, 0));
   const currentTimeRef = useRef(0);
+
+  const [rainPositions] = useState(() => {
+    const arr = [];
+    for (let i = 0; i < 200; i++) {
+      arr.push(new THREE.Vector3(
+        THREE.MathUtils.randFloat(-10, 10),
+        THREE.MathUtils.randFloat(0, 8),
+        THREE.MathUtils.randFloat(-10, 10)
+      ));
+    }
+    return arr;
+  });
 
   const [backgroundDust] = useState(() => {
     const arr = [];
@@ -162,6 +175,17 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
       });
       crowdRef.current.geometry.attributes.position.needsUpdate = true;
     }
+    if (activeLayers.weather && rainRef.current) {
+      const pos = rainRef.current.geometry.attributes.position.array;
+      rainPositions.forEach((rp, idx) => {
+        rp.y -= 0.15;
+        if (rp.y < -0.5) rp.y = 8.0;
+        pos[idx * 3] = rp.x;
+        pos[idx * 3 + 1] = rp.y;
+        pos[idx * 3 + 2] = rp.z;
+      });
+      rainRef.current.geometry.attributes.position.needsUpdate = true;
+    }
     if (dustRef.current) dustRef.current.rotation.y = time * 0.02;
   });
 
@@ -287,17 +311,65 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
         <meshBasicMaterial color="#46F3FF" />
       </mesh>
 
-      {/* Emergency paths */}
-      {scrollProgress > 0.4 && (
+      {/* Dynamic 3D Rain Overlay when weather layer is active */}
+      {activeLayers.weather && (
+        <points ref={rainRef}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[new Float32Array(rainPositions.flatMap(p => [p.x, p.y, p.z])), 3]}
+            />
+          </bufferGeometry>
+          <pointsMaterial size={0.05} color="#46f3ff" transparent opacity={0.8} />
+        </points>
+      )}
+
+      {/* Emergency Rerouting paths (rendered when accessibility OR scroll is active) */}
+      {(activeLayers.accessibility || scrollProgress > 0.4) && (
         <>
-          <Line points={emergencyPath1} color="#ef4444" lineWidth={3} />
-          <Line points={emergencyPath2} color="#f59e0b" lineWidth={3} />
+          <Line points={emergencyPath1} color="#00f0ff" lineWidth={3.5} />
+          <Line points={emergencyPath2} color="#7C5CFF" lineWidth={3.5} />
           <Html position={[0, 2.0, -2]} distanceFactor={8} zIndexRange={[100, 0]} className="html-route-bypass-label">
-            <div className="px-2 py-1 bg-red-950/80 border border-red-500/50 rounded text-[9px] font-bold text-red-400 whitespace-nowrap shadow-lg">
-              ⚠️ ROUTE BYPASS ACTIVE
+            <div className="px-2 py-1 bg-cyan-950/90 border border-cyan-400/50 rounded text-[9px] font-bold text-cyan-400 whitespace-nowrap shadow-lg">
+              ♿ STEP-FREE ACCESS ROUTE ACTIVE
             </div>
           </Html>
         </>
+      )}
+
+      {/* Emergency Evacuation Exclusion Dome (grease fire Stand North) */}
+      {activeLayers.emergency && (
+        <mesh position={[-3, 0.4, 3]}>
+          <sphereGeometry args={[1.5, 16, 16]} />
+          <meshBasicMaterial color="#ef4444" wireframe transparent opacity={0.15} />
+          <Html distanceFactor={8} center zIndexRange={[100, 0]}>
+            <div className="px-2 py-0.5 bg-red-950/95 border border-red-500 rounded text-[8px] font-extrabold text-red-400 whitespace-nowrap animate-pulse">
+              🚨 EVACUATION ISOLATION ZONE
+            </div>
+          </Html>
+        </mesh>
+      )}
+
+      {/* Parking Lot A status text */}
+      {activeLayers.parking && (
+        <group position={[9, 0.4, -2]}>
+          <Html distanceFactor={8} center zIndexRange={[100, 0]}>
+            <div className="px-2 py-1 bg-orange-950/95 border border-orange-500 rounded text-[8px] font-bold text-orange-400 whitespace-nowrap">
+              🚗 LOT A: 100% FULL
+            </div>
+          </Html>
+        </group>
+      )}
+
+      {/* Metro platform status text */}
+      {activeLayers.transit && (
+        <group position={[0, 0.4, 11]}>
+          <Html distanceFactor={8} center zIndexRange={[100, 0]}>
+            <div className="px-2 py-1 bg-red-950/95 border border-red-500 rounded text-[8px] font-bold text-red-400 whitespace-nowrap animate-bounce">
+              🚊 METRO: 15m DELAY
+            </div>
+          </Html>
+        </group>
       )}
 
       {/* Parking cars */}
@@ -315,7 +387,7 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
         </mesh>
       ))}
 
-      {/* Crowd particle system */}
+      {/* Crowd particle system (color changes dynamically if heatmap is toggled) */}
       <points ref={crowdRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -323,20 +395,27 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
             args={[new Float32Array(crowdPositions.length * 3), 3]}
           />
         </bufferGeometry>
-        <pointsMaterial size={0.07} color="#facc15" transparent opacity={0.6} />
+        <pointsMaterial size={0.07} color={activeLayers.heatmap ? "#ef4444" : "#facc15"} transparent opacity={0.6} />
       </points>
 
-      {/* Volunteer position indicators */}
-      {volunteerPositions.map((v, idx) => (
-        <mesh key={idx} position={[
-          Math.cos(currentTimeRef.current * v.speed + v.baseAngle) * v.radius,
-          v.yOffset,
-          Math.sin(currentTimeRef.current * v.speed + v.baseAngle) * v.radius
-        ]}>
-          <sphereGeometry args={[0.04, 6, 6]} />
-          <meshBasicMaterial color="#00C8FF" transparent opacity={0.5} />
-        </mesh>
-      ))}
+      {/* Volunteer position indicators with pulsing beacon rings */}
+      {activeLayers.volunteers && volunteerPositions.map((v, idx) => {
+        const x = Math.cos(currentTimeRef.current * v.speed + v.baseAngle) * v.radius;
+        const z = Math.sin(currentTimeRef.current * v.speed + v.baseAngle) * v.radius;
+        return (
+          <group key={idx} position={[x, v.yOffset, z]}>
+            <mesh>
+              <sphereGeometry args={[0.04, 6, 6]} />
+              <meshBasicMaterial color="#00C8FF" transparent opacity={0.5} />
+            </mesh>
+            {/* Pulsing Beacon Halo */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.04, 0]}>
+              <ringGeometry args={[0.08, 0.15 + Math.sin(currentTimeRef.current * 4) * 0.05, 8]} />
+              <meshBasicMaterial color="#00C8FF" transparent opacity={0.3} />
+            </mesh>
+          </group>
+        );
+      })}
 
       {/* Fireworks */}
       <Firework position={[-4, 6, -3]} color="#ff2255" />
@@ -394,6 +473,27 @@ export function StadiumScene({ scrollProgress, activeNode, onNodeClick }) {
                 {node.name}
               </div>
             </Html>
+            
+            {/* Blinking Active Incident Tag */}
+            {activeLayers.incidents && (node.name === "Gate C" || node.name === "Security Station") && (
+              <Html position={[0, 0.75, 0]} distanceFactor={8} center zIndexRange={[100, 0]}>
+                <div 
+                  className="px-2 py-0.5 bg-red-950 border border-red-500 rounded text-[7px] font-black text-red-400 uppercase whitespace-nowrap"
+                  style={{ animation: 'flash-mic 1s ease-in-out infinite' }}
+                >
+                  ⚠️ Incident active
+                </div>
+              </Html>
+            )}
+
+            {/* Floating AI Recommendation Banner */}
+            {activeLayers.aiRecommend && node.name === "Gate C" && (
+              <Html position={[0, -0.4, 0]} distanceFactor={8} center zIndexRange={[100, 0]}>
+                <div className="px-2 py-0.5 bg-indigo-950/95 border border-indigo-400/80 rounded text-[7px] font-extrabold text-indigo-300 whitespace-nowrap shadow-lg">
+                  🤖 Redirecting flow to Gate D
+                </div>
+              </Html>
+            )}
           </group>
         );
       })}

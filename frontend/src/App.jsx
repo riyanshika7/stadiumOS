@@ -3,6 +3,7 @@ import AlertFeed from './components/AlertFeed';
 import Translator from './components/Translator';
 import MapViewer from './components/MapViewer';
 import IncidentForm from './components/IncidentForm';
+import PitchHub from './components/PitchHub';
 import CsvUploader from './components/CsvUploader';
 import TicketScanner from './components/TicketScanner';
 import AmbientInsights from './components/AmbientInsights';
@@ -265,68 +266,88 @@ function App() {
             </p>
           </div>
 
-          <CsvUploader onUploadSuccess={handleIncidentSubmitted} />
+          <div id="csv-uploader-widget" tabIndex="-1" aria-label="Ingestion Portal">
+            <CsvUploader onUploadSuccess={handleIncidentSubmitted} />
+          </div>
 
-          <IncidentsLog 
-            incidents={incidents}
-            incidentViewTab={incidentViewTab}
-            setIncidentViewTab={setIncidentViewTab}
-            filteredIncidents={filteredIncidents}
-            isServerOffline={isServerOffline}
-            resolveIncident={resolveIncident}
-          />
+          <div id="incident-log-widget" tabIndex="-1" aria-label="Incident Logs">
+            <IncidentsLog 
+              incidents={incidents}
+              incidentViewTab={incidentViewTab}
+              setIncidentViewTab={setIncidentViewTab}
+              filteredIncidents={filteredIncidents}
+              isServerOffline={isServerOffline}
+              resolveIncident={resolveIncident}
+            />
+          </div>
         </aside>
 
         <main id="main-content" className="main-content" tabIndex="-1" aria-label="Stadium Operations Dashboard">
-          <ErrorBoundary>
-            <MissionCommander />
-          </ErrorBoundary>
+          <div id="mission-commander-widget" tabIndex="-1" aria-label="Mission Commander Console">
+            <ErrorBoundary>
+              <MissionCommander />
+            </ErrorBoundary>
+          </div>
           <AmbientInsights locations={locations} alerts={alerts} incidents={incidents} />
           <AlertFeed alerts={alerts} />
 
-          <ErrorBoundary>
-            <Suspense fallback={
-              <div className="glass-card suspense-fallback">
-                <span className="suspense-spinner">⟳</span>
-                Loading 3D Digital Twin...
-              </div>
-            }>
-              <DashboardDigitalTwin
-                activeNode={activeNode}
-                onNodeSelect={setActiveNode}
-                onTriggerSimulation={executeCommand}
-                onSetRouteStart={setRouteStart}
-                onSetRouteDest={setRouteDest}
-              />
-            </Suspense>
-          </ErrorBoundary>
+          <div id="digital-twin-widget" tabIndex="-1" aria-label="3D Digital Twin Operating Cockpit">
+            <ErrorBoundary>
+              <Suspense fallback={
+                <div className="glass-card suspense-fallback">
+                  <span className="suspense-spinner">⟳</span>
+                  Loading 3D Digital Twin...
+                </div>
+              }>
+                <DashboardDigitalTwin
+                  activeNode={activeNode}
+                  onNodeSelect={setActiveNode}
+                  onTriggerSimulation={executeCommand}
+                  onSetRouteStart={setRouteStart}
+                  onSetRouteDest={setRouteDest}
+                />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
 
-          <ErrorBoundary>
-            <section className="action-area">
-              <Translator />
-              <MapViewer 
-                locations={locations} 
-                forcedStart={routeStart}
-                forcedEnd={routeDest}
-              />
-            </section>
-          </ErrorBoundary>
+          <div id="translator-widget" tabIndex="-1" aria-label="Translator & Route Maps">
+            <ErrorBoundary>
+              <section className="action-area">
+                <Translator />
+                <MapViewer 
+                  locations={locations} 
+                  forcedStart={routeStart}
+                  forcedEnd={routeDest}
+                />
+              </section>
+            </ErrorBoundary>
+          </div>
 
-          <ErrorBoundary>
-            <TicketScanner />
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <SwarmOrchestrator />
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <WhatIfSimulator />
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <CctvMonitor />
-          </ErrorBoundary>
+          <div id="ticket-scanner-widget" tabIndex="-1" aria-label="Ticket Scanner Module">
+            <ErrorBoundary>
+              <TicketScanner />
+            </ErrorBoundary>
+          </div>
+          <div id="swarm-orchestrator-widget" tabIndex="-1" aria-label="Multi-Agent Swarm Orchestrator">
+            <ErrorBoundary>
+              <SwarmOrchestrator />
+            </ErrorBoundary>
+          </div>
+          <div id="what-if-widget" tabIndex="-1" aria-label="What-If Capacity Simulator">
+            <ErrorBoundary>
+              <WhatIfSimulator />
+            </ErrorBoundary>
+          </div>
+          <div id="cctv-monitor-widget" tabIndex="-1" aria-label="CCTV Stream Monitor">
+            <ErrorBoundary>
+              <CctvMonitor />
+            </ErrorBoundary>
+          </div>
           <ErrorBoundary>
             <IncidentForm onIncidentSubmitted={handleIncidentOfflineIntercept} />
           </ErrorBoundary>
+
+          <PitchHub />
 
           {deafMode && (
             <ClosedCaptionsConsole 
