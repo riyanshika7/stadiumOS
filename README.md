@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="stadiumos.png" alt="StadiumOS" width="600px">
+  <img src="frontend/public/stadiumos.png" alt="StadiumOS" width="600px">
 </p>
 
 <p align="center">
